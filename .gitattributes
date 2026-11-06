@@ -1,0 +1,4 @@
+# Текст — с LF в репозитории; двоичные файлы движка и баз не трогать
+* text=auto eol=lf
+*.wasm binary
+*.sqlite binary

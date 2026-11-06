@@ -1,0 +1,7 @@
+{
+  "name": "sqljs-vendored",
+  "private": true,
+  "description": "sql.js (MIT), см. VERSION.txt. Файлы — CommonJS, а корневой проект — type: module, поэтому здесь свой тип.",
+  "type": "commonjs",
+  "main": "sql-wasm.js"
+}

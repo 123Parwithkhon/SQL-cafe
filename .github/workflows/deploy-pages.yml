@@ -1,0 +1,40 @@
+# Публикация на GitHub Pages: при каждом push в main сайт собирается
+# в статическом режиме (npm run build:pages) и выкладывается в ветку gh-pages.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      # Собирает базы, проверяет все задания и уроки, затем статический экспорт в out/
+      - run: npm run build:pages
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}
+
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./out
+          publish_branch: gh-pages
+          force_orphan: true

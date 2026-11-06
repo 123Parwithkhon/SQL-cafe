@@ -1,0 +1,7 @@
+{
+  "name": "sharp",
+  "version": "0.0.0-not-used",
+  "description": "Заглушка вместо sharp: next/image в проекте не используется (все иллюстрации — встроенные SVG). Экономит ~28 МБ в node_modules.",
+  "main": "index.js",
+  "license": "MIT"
+}

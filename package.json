@@ -1,0 +1,53 @@
+{
+  "name": "chaikhona-sql",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "db:seed": "node --disable-warning=ExperimentalWarning scripts/build-db.mjs",
+    "tasks:check": "node --disable-warning=ExperimentalWarning scripts/check-tasks.mjs",
+    "prepare:assets": "node scripts/copy-sqljs.mjs && npm run db:seed && npm run tasks:check",
+    "predev": "npm run prepare:assets",
+    "dev": "next dev",
+    "prebuild": "npm run prepare:assets",
+    "build": "next build",
+    "build:pages": "npm run prepare:assets && node scripts/build-pages.mjs",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "setup:google": "node scripts/setup-google.mjs",
+    "clean": "node scripts/clean.mjs",
+    "clean:all": "node scripts/clean.mjs --all"
+  },
+  "dependencies": {
+    "@codemirror/autocomplete": "^6.20.4",
+    "@codemirror/commands": "^6.11.1",
+    "@codemirror/lang-sql": "^6.10.0",
+    "@codemirror/language": "^6.13.1",
+    "@codemirror/state": "^6.7.6",
+    "@codemirror/view": "^6.43.15",
+    "@electric-sql/pglite": "^0.5.13",
+    "@lezer/highlight": "^1.2.5",
+    "codemirror": "^6.0.2",
+    "next": "^16.4.3",
+    "next-auth": "^5.0.0-beta.32",
+    "postgres": "^3.4.9",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^26.6.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "postcss": "^8.5.32",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "sharp": "file:./vendor/no-sharp"
+  }
+}
