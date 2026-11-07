@@ -16,3 +16,7 @@ public/bazaar.sqlite
 public/sqljs/
 
 _old/
+
+.vercel
+.env*
+!.env.example
