@@ -12,25 +12,49 @@ const WEEK_START = `(date_trunc('week', now() AT TIME ZONE 'Asia/Dushanbe') AT T
 const TODAY = `(now() AT TIME ZONE 'Asia/Dushanbe')::date`;
 
 export type PublicUser = { id: string; name: string; image: string | null; city: string | null; university: string | null };
+export type FullUser = PublicUser & { email: string | null; role: 'user' | 'admin'; blocked: boolean; isAdmin: boolean };
 
-export async function upsertUser(provider: string, providerId: string, name: string, image: string | null): Promise<string> {
+/** Главные администраторы — из переменной окружения ADMIN_EMAILS (через запятую). Их нельзя разжаловать из админки. */
+export function adminEmails(): string[] {
+  return (process.env.ADMIN_EMAILS ?? '').split(',').map((e) => e.trim().toLowerCase()).filter(Boolean);
+}
+
+export const isOwnerEmail = (email: string | null) => Boolean(email && adminEmails().includes(email.toLowerCase()));
+
+export async function upsertUser(provider: string, providerId: string, name: string, image: string | null, email: string | null): Promise<string> {
   const safeName = (name || 'Гость').trim().slice(0, 60) || 'Гость';
-  // Имя обновляем только при создании: пользователь мог поменять его в профиле
+  const safeEmail = email ? email.trim().toLowerCase().slice(0, 254) : null;
+  // Имя обновляем только при создании: пользователь мог поменять его в профиле.
+  // Email и фото — при каждом входе: в Google их могли изменить.
   const rows = await query<{ id: string }>(
-    `INSERT INTO users (provider, provider_id, name, image) VALUES ($1, $2, $3, $4)
-     ON CONFLICT (provider, provider_id) DO UPDATE SET image = COALESCE(EXCLUDED.image, users.image)
+    `INSERT INTO users (provider, provider_id, name, image, email, last_seen_at) VALUES ($1, $2, $3, $4, $5, now())
+     ON CONFLICT (provider, provider_id) DO UPDATE SET
+       image = COALESCE(EXCLUDED.image, users.image),
+       email = COALESCE(EXCLUDED.email, users.email),
+       last_seen_at = now()
      RETURNING id::text AS id`,
-    [provider, providerId, safeName, image],
+    [provider, providerId, safeName, image, safeEmail],
   );
   return rows[0].id;
 }
 
-export async function getUser(userId: string): Promise<PublicUser | null> {
-  const rows = await query<PublicUser>(
-    'SELECT id::text AS id, name, image, city, university FROM users WHERE id = $1',
+export async function getUser(userId: string): Promise<FullUser | null> {
+  const rows = await query<Omit<FullUser, 'isAdmin'>>(
+    'SELECT id::text AS id, name, image, city, university, email, role, blocked FROM users WHERE id = $1',
     [userId],
   );
-  return rows[0] ?? null;
+  const u = rows[0];
+  return u ? { ...u, isAdmin: u.role === 'admin' || isOwnerEmail(u.email) } : null;
+}
+
+/** Отметка «был на сайте» — не чаще раза в 10 минут, чтобы не нагружать базу на каждой странице */
+export async function touchLastSeen(userId: string) {
+  await query(`UPDATE users SET last_seen_at = now() WHERE id = $1 AND (last_seen_at IS NULL OR last_seen_at < now() - interval '10 minutes')`, [userId]);
+}
+
+/** Каждая проверка решения — для аналитики трудности заданий */
+export async function recordAttempt(userId: string | null, taskId: number, ok: boolean) {
+  await query('INSERT INTO attempts (user_id, task_id, ok) VALUES ($1, $2, $3)', [userId, taskId, ok]);
 }
 
 export async function updateProfile(userId: string, data: { name: string; city: string | null; university: string | null }) {
@@ -94,7 +118,8 @@ export async function getLeaderboard(
   meId?: string | null,
 ): Promise<{ rows: LeaderRow[]; me: LeaderRow | null }> {
   const params: unknown[] = [];
-  const where = ['s.verified'];
+  // Заблокированные администратором в рейтинг не попадают
+  const where = ['s.verified', 'NOT u.blocked'];
   if (period === 'week') where.push(`s.solved_at >= ${WEEK_START}`);
   if (filters.city) {
     params.push(filters.city);
@@ -235,7 +260,7 @@ export async function getOtherSolutions(userId: string, taskId: number): Promise
   return query<OtherSolution>(
     `SELECT u.name, u.city, s.sql, to_char(s.solved_at AT TIME ZONE 'Asia/Dushanbe', 'YYYY-MM-DD') AS "solvedAt"
      FROM solves s JOIN users u ON u.id = s.user_id
-     WHERE s.task_id = $1 AND s.verified AND s.sql IS NOT NULL AND s.user_id <> $2
+     WHERE s.task_id = $1 AND s.verified AND s.sql IS NOT NULL AND s.user_id <> $2 AND NOT u.blocked
      ORDER BY length(s.sql), s.solved_at
      LIMIT 20`,
     [taskId, userId],

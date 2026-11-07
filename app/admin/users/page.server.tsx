@@ -1,0 +1,104 @@
+// Пользователи: поиск по имени и почте, фильтр, сортировка, страницы по 50
+import Link from 'next/link';
+import { listUsers, type UserSort } from '@/lib/admin';
+import { Avatar } from '@/components/Avatar';
+
+export const metadata = { title: 'Пользователи' };
+
+type SP = Promise<{ q?: string; sort?: string; filter?: string; page?: string }>;
+
+const SORTS: Record<UserSort, string> = { new: 'Новые', points: 'По очкам', active: 'Недавно были' };
+const FILTERS = { all: 'Все', admins: 'Админы', blocked: 'Заблокированные' } as const;
+
+export default async function AdminUsersPage({ searchParams }: { searchParams: SP }) {
+  const sp = await searchParams;
+  const sort: UserSort = sp.sort === 'points' || sp.sort === 'active' ? sp.sort : 'new';
+  const filter = sp.filter === 'admins' || sp.filter === 'blocked' ? sp.filter : 'all';
+  const q = (sp.q ?? '').slice(0, 100);
+  const page = Math.max(1, Number.parseInt(sp.page ?? '1', 10) || 1);
+  const data = await listUsers({ q, sort, filter, page });
+
+  const href = (over: Record<string, string | number>) => {
+    const p = new URLSearchParams({ q, sort, filter, page: String(page), ...Object.fromEntries(Object.entries(over).map(([k, v]) => [k, String(v)])) });
+    for (const [k, v] of [...p.entries()]) if (!v || (k === 'page' && v === '1') || (k === 'sort' && v === 'new') || (k === 'filter' && v === 'all')) p.delete(k);
+    const s = p.toString();
+    return `/admin/users${s ? `?${s}` : ''}`;
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Все фильтры — одной строкой над таблицей; обычная форма GET, работает и без JS */}
+      <form className="flex flex-wrap items-center gap-2" action="/admin/users">
+        <input
+          type="search"
+          name="q"
+          defaultValue={q}
+          placeholder="Имя или email"
+          aria-label="Поиск по имени или email"
+          className="min-h-10 w-full rounded-lg border border-gold/40 bg-panel px-3 text-sm text-fg sm:w-64"
+        />
+        <select name="filter" defaultValue={filter} aria-label="Фильтр" className="min-h-10 rounded-lg border border-gold/40 bg-panel px-2 text-sm text-fg">
+          {Object.entries(FILTERS).map(([k, v]) => (
+            <option key={k} value={k}>{v}</option>
+          ))}
+        </select>
+        <select name="sort" defaultValue={sort} aria-label="Сортировка" className="min-h-10 rounded-lg border border-gold/40 bg-panel px-2 text-sm text-fg">
+          {Object.entries(SORTS).map(([k, v]) => (
+            <option key={k} value={k}>{v}</option>
+          ))}
+        </select>
+        <button type="submit" className="min-h-10 rounded-lg bg-gold px-4 text-sm font-semibold text-lazur">Найти</button>
+        <span className="ml-auto text-sm text-fg/60">Найдено: {data.total}</span>
+      </form>
+
+      {data.rows.length === 0 ? (
+        <p className="rounded-xl border border-gold/30 bg-panel p-6 text-center text-fg/60">Никого не нашли.</p>
+      ) : (
+        <div className="result-scroll rounded-xl border border-gold/30 bg-panel">
+          <table className="w-full min-w-[640px] text-left text-sm">
+            <thead className="text-xs text-fg/60">
+              <tr>
+                <th className="px-3 py-2">Пользователь</th>
+                <th className="px-3 py-2">Решено</th>
+                <th className="px-3 py-2">Очки</th>
+                <th className="px-3 py-2">Регистрация</th>
+                <th className="px-3 py-2">Был на сайте</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.rows.map((u) => (
+                <tr key={u.id} className="border-t border-fg/10 hover:bg-fg/5">
+                  <td className="px-3 py-2">
+                    <Link href={`/admin/users/${u.id}`} className="flex items-center gap-2">
+                      <Avatar name={u.name} image={u.image} size={28} />
+                      <span className="min-w-0">
+                        <span className="block truncate font-semibold text-fg">
+                          {u.name}
+                          {(u.role === 'admin' || u.isOwner) && <span className="ml-1.5 rounded bg-gold/20 px-1.5 text-[11px] text-gold-soft">{u.isOwner ? 'главный админ' : 'админ'}</span>}
+                          {u.blocked && <span className="ml-1.5 rounded bg-red-500/15 px-1.5 text-[11px] text-red-500">заблокирован</span>}
+                        </span>
+                        <span className="block truncate text-xs text-fg/55">{u.email ?? '—'}</span>
+                      </span>
+                    </Link>
+                  </td>
+                  <td className="px-3 py-2 text-fg">{u.solved}</td>
+                  <td className="px-3 py-2 text-fg">{u.points}</td>
+                  <td className="px-3 py-2 font-mono text-xs text-fg/70">{u.createdAt}</td>
+                  <td className="px-3 py-2 font-mono text-xs text-fg/70">{u.lastSeenAt ?? '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {data.pages > 1 && (
+        <nav className="flex items-center justify-center gap-3 text-sm" aria-label="Страницы">
+          {data.page > 1 && <Link href={href({ page: data.page - 1 })} className="rounded-lg border border-gold/40 px-3 py-1.5 text-fg hover:bg-fg/5">← Назад</Link>}
+          <span className="text-fg/60">{data.page} из {data.pages}</span>
+          {data.page < data.pages && <Link href={href({ page: data.page + 1 })} className="rounded-lg border border-gold/40 px-3 py-1.5 text-fg hover:bg-fg/5">Дальше →</Link>}
+        </nav>
+      )}
+    </div>
+  );
+}

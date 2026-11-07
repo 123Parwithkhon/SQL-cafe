@@ -3,7 +3,7 @@
 // Текущий пользователь — с сервера через layout, без лишнего запроса из браузера
 import { createContext, useContext, type ReactNode } from 'react';
 
-export type AuthUser = { id: string; name: string; image: string | null } | null;
+export type AuthUser = { id: string; name: string; image: string | null; isAdmin?: boolean; blocked?: boolean } | null;
 
 const AuthContext = createContext<AuthUser>(null);
 

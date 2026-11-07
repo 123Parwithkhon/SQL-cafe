@@ -8,7 +8,7 @@ import { diagnose } from '@/lib/sql/diagnose';
 import { DEFAULT_DB, SCHEMAS } from '@/lib/schema';
 import { runModifications, runQueries } from '@/lib/sql/server-runner';
 import { currentUserId } from '@/auth';
-import { recordSolve } from '@/lib/stats';
+import { getUser, recordAttempt, recordSolve } from '@/lib/stats';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -106,19 +106,20 @@ export async function POST(request: Request) {
   // Подсказки по смыслу ошибки — по тексту запроса и вердикту
   const hints = verdict.ok ? [] : diagnose({ sql, schema: SCHEMAS[db], verdict });
 
-  // Верное решение вошедшего пользователя — в базу (очки, рейтинг, решения других).
-  // Сбой базы не должен лишать студента вердикта.
+  // Попытка — в статистику (для админки), верное решение вошедшего — в базу
+  // (очки, рейтинг, решения других). Сбой базы не должен лишать студента вердикта.
   let saved = false;
-  if (verdict.ok) {
-    try {
-      const userId = await currentUserId();
-      if (userId) {
-        await recordSolve(userId, task.id, sql);
-        saved = true;
-      }
-    } catch (err) {
-      console.error('[check] не удалось сохранить решение:', err);
+  try {
+    const userId = await currentUserId();
+    const user = userId ? await getUser(userId) : null;
+    await recordAttempt(user?.id ?? null, task.id, verdict.ok);
+    // Заблокированному администратором очки не начисляются
+    if (verdict.ok && user && !user.blocked) {
+      await recordSolve(user.id, task.id, sql);
+      saved = true;
     }
+  } catch (err) {
+    console.error('[check] не удалось сохранить попытку или решение:', err);
   }
   return NextResponse.json({ verdict, saved, hints, diff });
 }

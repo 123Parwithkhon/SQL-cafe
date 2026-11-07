@@ -4,7 +4,7 @@ import { LANG_COOKIE, THEME_COOKIE, parseLang, parseTheme } from '@/lib/i18n';
 import type { AuthUser } from '@/components/AuthProvider';
 import { RootShell, siteMetadata, siteViewport } from '@/components/RootShell';
 import { auth } from '@/auth';
-import { getUser } from '@/lib/stats';
+import { getUser, touchLastSeen } from '@/lib/stats';
 import './globals.css';
 
 export const metadata = siteMetadata;
@@ -22,7 +22,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     const session = await auth();
     if (session?.user?.id) {
       const dbUser = await getUser(session.user.id);
-      if (dbUser) user = { id: dbUser.id, name: dbUser.name, image: dbUser.image };
+      if (dbUser) {
+        user = { id: dbUser.id, name: dbUser.name, image: dbUser.image, isAdmin: dbUser.isAdmin && !dbUser.blocked, blocked: dbUser.blocked };
+        // «Был на сайте» для админки; запись не чаще раза в 10 минут, ошибка не мешает странице
+        touchLastSeen(dbUser.id).catch(() => {});
+      }
     }
   } catch (err) {
     console.error('[layout] не удалось получить пользователя:', err);

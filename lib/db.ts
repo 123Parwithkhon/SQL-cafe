@@ -57,13 +57,43 @@ CREATE TABLE IF NOT EXISTS activity (
   day     DATE   NOT NULL,
   PRIMARY KEY (user_id, day)
 );
+
+-- Миграции для админки — безопасны для уже существующей базы
+ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin'));
+ALTER TABLE users ADD COLUMN IF NOT EXISTS blocked BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS last_seen_at TIMESTAMPTZ;
+CREATE INDEX IF NOT EXISTS idx_users_email ON users (lower(email));
+
+-- Каждая проверка решения (и гостей, и вошедших) — для аналитики «самые трудные задания»
+CREATE TABLE IF NOT EXISTS attempts (
+  id         BIGSERIAL PRIMARY KEY,
+  user_id    BIGINT REFERENCES users(id) ON DELETE SET NULL,
+  task_id    INTEGER NOT NULL,
+  ok         BOOLEAN NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_attempts_task ON attempts (task_id);
+CREATE INDEX IF NOT EXISTS idx_attempts_time ON attempts (created_at);
+
+-- Журнал действий администраторов: кто, что и с кем сделал
+CREATE TABLE IF NOT EXISTS admin_log (
+  id         BIGSERIAL PRIMARY KEY,
+  admin_id   BIGINT REFERENCES users(id) ON DELETE SET NULL,
+  action     TEXT NOT NULL,
+  target     TEXT,
+  details    TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
 `;
 
 function createPostgres(url: string): Driver {
   // Ленивая загрузка, чтобы локально без DATABASE_URL пакет не требовался
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const postgres = require('postgres') as typeof import('postgres');
-  const sql = postgres(url, { max: 5, idle_timeout: 20, prepare: false });
+  // Размер пула на один экземпляр сервера; на Vercel экземпляров много, поэтому немного
+  const max = Math.min(Math.max(Number.parseInt(process.env.DATABASE_POOL_MAX ?? '', 10) || 5, 1), 20);
+  const sql = postgres(url, { max, idle_timeout: 20, prepare: false });
   return {
     async query<T extends Row>(text: string, params: unknown[] = []) {
       return (await sql.unsafe(text, params as never[])) as unknown as T[];

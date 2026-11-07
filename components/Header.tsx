@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Award, BookOpen, Flame, ListChecks, LogIn, Terminal, Trophy, type IconComponent } from '@/components/icons';
+import { Award, BookOpen, Flame, ListChecks, LogIn, ShieldCheck, Terminal, Trophy, type IconComponent } from '@/components/icons';
 import { IS_STATIC } from '@/lib/env';
 import { LANGS, type Theme } from '@/lib/i18n';
 import { ThemeToggle } from './ThemeToggle';
@@ -51,6 +51,7 @@ export function Header({ theme }: { theme: Theme }) {
           {navLink('/playground', t('nav.playground'), Terminal)}
           {/* Рейтингу нужен сервер — в статической сборке (GitHub Pages) его нет */}
           {!IS_STATIC && navLink('/leaderboard', t('nav.leaderboard'), Trophy)}
+          {!IS_STATIC && user?.isAdmin && navLink('/admin', t('nav.admin'), ShieldCheck)}
         </nav>
 
         <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
