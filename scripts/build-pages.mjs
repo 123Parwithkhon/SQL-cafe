@@ -10,13 +10,15 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const raw = process.env.BASE_PATH ?? '/SQL-cafe';
 const basePath = raw === '/' ? '' : raw.replace(/\/+$/, '');
+// Куда ведёт «Войти» в гостевой версии; пустая строка — кнопки не будет
+const fullSite = process.env.FULL_SITE_URL ?? 'https://sql-cafe-gray.vercel.app';
 
 console.log(`Статическая сборка для GitHub Pages, префикс: «${basePath || '/'}»`);
 const result = spawnSync('npx', ['next', 'build'], {
   cwd: root,
   stdio: 'inherit',
   shell: process.platform === 'win32',
-  env: { ...process.env, NEXT_PUBLIC_STATIC_EXPORT: '1', NEXT_PUBLIC_BASE_PATH: basePath },
+  env: { ...process.env, NEXT_PUBLIC_STATIC_EXPORT: '1', NEXT_PUBLIC_BASE_PATH: basePath, NEXT_PUBLIC_FULL_SITE_URL: fullSite },
 });
 if (result.status !== 0) process.exit(result.status ?? 1);
 

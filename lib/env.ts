@@ -10,4 +10,7 @@
 export const IS_STATIC = process.env.NEXT_PUBLIC_STATIC_EXPORT === '1';
 
 /** Префикс адресов: на GitHub Pages сайт живёт в подпапке, например /SQL-cafe */
+/** Адрес полной версии (вход, рейтинг, админка). Гостевая версия ведёт туда кнопкой «Войти». */
+export const FULL_SITE_URL = (process.env.NEXT_PUBLIC_FULL_SITE_URL ?? '').replace(/\/+$/, '');
+
 export const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? '';

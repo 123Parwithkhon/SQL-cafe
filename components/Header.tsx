@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Award, BookOpen, Flame, ListChecks, LogIn, ShieldCheck, Terminal, Trophy, type IconComponent } from '@/components/icons';
-import { IS_STATIC } from '@/lib/env';
+import { FULL_SITE_URL, IS_STATIC } from '@/lib/env';
 import { LANGS, type Theme } from '@/lib/i18n';
 import { ThemeToggle } from './ThemeToggle';
 import { OrnamentBand } from './Ornament';
@@ -81,15 +81,27 @@ export function Header({ theme }: { theme: Theme }) {
               <Avatar name={user.name} image={user.image} size={32} />
             </Link>
           ) : IS_STATIC ? (
-            // Без сервера входа нет — ведём в профиль с прогрессом на этом устройстве
+            // Без сервера входа нет: профиль с прогрессом на этом устройстве + «Войти» на полной версии
+            <>
             <Link
               href="/profile"
               aria-label={t('nav.profile')}
               className="flex min-h-9 items-center gap-1.5 rounded-lg border border-gold/40 px-2.5 text-sm font-semibold text-gold-soft transition hover:bg-fg/5"
             >
               <Award size={16} strokeWidth={2} />
-              <span className="hidden sm:inline">{t('nav.profile')}</span>
+              <span className="hidden lg:inline">{t('nav.profile')}</span>
             </Link>
+            {FULL_SITE_URL && (
+              <a
+                href={`${FULL_SITE_URL}/auth`}
+                aria-label={t('auth.signIn')}
+                className="flex min-h-9 items-center gap-1.5 rounded-lg bg-terra px-2.5 text-sm font-semibold text-white transition hover:bg-terra-dark"
+              >
+                <LogIn size={16} strokeWidth={2} aria-hidden />
+                <span className="hidden sm:inline">{t('auth.signIn')}</span>
+              </a>
+            )}
+            </>
           ) : (
             <Link
               href="/auth"
