@@ -1,6 +1,6 @@
 // app/api/profile/route.ts — PATCH { name, city, university }: изменить свой профиль
 import { NextResponse } from 'next/server';
-import { currentUserId } from '@/auth';
+import { currentMember } from '@/auth';
 import { updateProfile } from '@/lib/stats';
 import { isCity, isUniversity } from '@/lib/regions';
 
@@ -8,8 +8,11 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function PATCH(request: Request) {
-  const userId = await currentUserId();
-  if (!userId) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  const user = await currentMember();
+  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  // Имя видно другим — заблокированный менять его не может
+  if (user.blocked) return NextResponse.json({ error: 'blocked' }, { status: 403 });
+  const userId = user.id;
 
   let body: { name?: unknown; city?: unknown; university?: unknown };
   try {

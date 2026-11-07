@@ -65,6 +65,15 @@ export async function currentUserId(): Promise<string | null> {
 }
 
 /**
+ * Вошедший пользователь из базы (null — не вошёл или аккаунт удалён администратором).
+ * Для действий, где важна блокировка, — проверяйте user.blocked.
+ */
+export async function currentMember(): Promise<FullUser | null> {
+  const id = await currentUserId();
+  return id ? getUser(id) : null;
+}
+
+/**
  * Текущий администратор или null. Проверяется по базе при каждом запросе,
  * а не по сессии: разжалованный или заблокированный админ теряет доступ сразу.
  */

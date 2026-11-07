@@ -1,6 +1,6 @@
 // app/api/certificates/route.ts — POST { tier }: выдать сертификат за пройденный уровень
 import { NextResponse } from 'next/server';
-import { currentUserId } from '@/auth';
+import { currentMember } from '@/auth';
 import { TIERS, type Tier } from '@/lib/course';
 import { issueCertificate } from '@/lib/stats';
 
@@ -8,8 +8,11 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
-  const userId = await currentUserId();
-  if (!userId) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  const user = await currentMember();
+  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  // Заблокированным сертификаты не выдаём
+  if (user.blocked) return NextResponse.json({ error: 'blocked' }, { status: 403 });
+  const userId = user.id;
 
   let tier: unknown;
   try {

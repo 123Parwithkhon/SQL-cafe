@@ -288,3 +288,19 @@ export async function recentLog(limit = 20): Promise<LogEntry[]> {
      ORDER BY l.created_at DESC LIMIT ${Math.max(1, Math.min(limit, 200))}`,
   );
 }
+
+// ── Выгрузка ──
+
+/** Все пользователи для CSV (до 50 000 строк) */
+export async function exportUsers(): Promise<Omit<AdminUserRow, 'image' | 'isOwner'>[]> {
+  return query<Omit<AdminUserRow, 'image' | 'isOwner'>>(
+    `SELECT u.id::text AS id, u.name, u.email, u.city, u.university, u.role, u.blocked,
+            COALESCE(s.solved, 0)::int AS solved, COALESCE(s.points, 0)::int AS points,
+            to_char(u.created_at AT TIME ZONE 'Asia/Dushanbe', 'YYYY-MM-DD HH24:MI') AS "createdAt",
+            to_char(u.last_seen_at AT TIME ZONE 'Asia/Dushanbe', 'YYYY-MM-DD HH24:MI') AS "lastSeenAt"
+     FROM users u
+     LEFT JOIN (SELECT user_id, COUNT(*) FILTER (WHERE verified) AS solved, SUM(points) FILTER (WHERE verified) AS points
+                FROM solves GROUP BY user_id) s ON s.user_id = u.id
+     ORDER BY u.id LIMIT 50000`,
+  );
+}

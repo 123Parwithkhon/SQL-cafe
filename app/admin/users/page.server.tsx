@@ -49,6 +49,10 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: S
         </select>
         <button type="submit" className="min-h-10 rounded-lg bg-gold px-4 text-sm font-semibold text-lazur">Найти</button>
         <span className="ml-auto text-sm text-fg/60">Найдено: {data.total}</span>
+        {/* Обычная ссылка: файл скачивается, страница остаётся */}
+        <a href="/api/admin/users/export" download className="min-h-10 rounded-lg border border-gold/40 px-3 py-2 text-sm font-semibold text-fg hover:bg-fg/5">
+          Скачать CSV
+        </a>
       </form>
 
       {data.rows.length === 0 ? (
