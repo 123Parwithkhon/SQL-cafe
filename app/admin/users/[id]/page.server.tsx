@@ -11,6 +11,8 @@ import { UserActions } from '@/components/admin/UserActions';
 
 export const metadata = { title: 'Пользователь' };
 
+const PROVIDERS: Record<string, string> = { google: 'вход через Google', password: 'вход по паролю', dev: 'тестовый вход' };
+
 export default async function AdminUserPage({ params }: { params: Promise<{ id: string }> }) {
   const [{ id }, admin] = await Promise.all([params, currentAdmin()]);
   const u = await getUserDetail(id);
@@ -39,13 +41,16 @@ export default async function AdminUserPage({ params }: { params: Promise<{ id: 
             {targetIsAdmin && <span className="rounded bg-gold/20 px-1.5 text-xs text-gold-soft">{u.isOwner ? 'главный админ' : 'админ'}</span>}
             {u.blocked && <span className="rounded bg-red-500/15 px-1.5 text-xs text-red-500">заблокирован</span>}
           </div>
-          <div className="text-sm text-fg/70">{u.email ?? 'почта не указана'}</div>
+          <div className="text-sm text-fg/70">
+            {u.email ?? 'почта не указана'}
+            <span className="ml-2 rounded bg-fg/10 px-1.5 text-xs text-fg/60">{PROVIDERS[u.provider] ?? u.provider}</span>
+          </div>
           <div className="text-xs text-fg/55">
             {[u.city, u.university].filter(Boolean).join(' · ') || 'город и вуз не указаны'} · с {u.createdAt}
             {u.lastSeenAt && ` · был ${u.lastSeenAt}`}
           </div>
         </div>
-        <UserActions userId={u.id} name={u.name} blocked={u.blocked} role={u.role} can={can} />
+        <UserActions userId={u.id} name={u.name} blocked={u.blocked} role={u.role} can={{ ...can, reset: can.block && u.provider === 'password' }} />
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">

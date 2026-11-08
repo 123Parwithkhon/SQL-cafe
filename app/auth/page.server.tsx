@@ -3,14 +3,15 @@ import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { AuthError } from 'next-auth';
-import { Check, LogIn, Send } from '@/components/icons';
+import { Check, LogIn } from '@/components/icons';
 import { auth, devLoginEnabled, googleEnabled, signIn } from '@/auth';
 import { LANG_COOKIE, parseLang, translate } from '@/lib/i18n';
 import { PishtaqFrame } from '@/components/Pishtaq';
+import { AuthForms } from '@/components/AuthForms';
 
 export const metadata: Metadata = { title: 'Вход' };
 
-type Props = { searchParams: Promise<{ next?: string; error?: string }> };
+type Props = { searchParams: Promise<{ next?: string; error?: string; mode?: string }> };
 
 /** Куда вернуть после входа — только внутренние пути (защита от открытого редиректа) */
 function safeNext(raw: string | undefined): string {
@@ -18,7 +19,7 @@ function safeNext(raw: string | undefined): string {
 }
 
 export default async function AuthPage({ searchParams }: Props) {
-  const { next, error } = await searchParams;
+  const { next, error, mode } = await searchParams;
   const redirectTo = safeNext(next);
   const lang = parseLang((await cookies()).get(LANG_COOKIE)?.value);
   const t = (key: Parameters<typeof translate>[1], vars?: Record<string, string>) => translate(lang, key, vars);
@@ -43,59 +44,49 @@ export default async function AuthPage({ searchParams }: Props) {
   return (
     <div className="mx-auto max-w-md">
       <PishtaqFrame className="px-6 pb-8 pt-20">
-        <h1 className="text-center font-serif text-3xl font-bold text-fg">{t('auth.title')}</h1>
-        <p className="mt-2 text-center text-fg/70">{t('auth.subtitle')}</p>
-
-        <ul className="mt-5 space-y-2 text-sm text-fg/85">
-          {(['auth.why1', 'auth.why2', 'auth.why3'] as const).map((key) => (
-            <li key={key} className="flex gap-2">
-              <Check size={18} className="mt-0.5 shrink-0 text-emerald-soft" aria-hidden />
-              {t(key)}
-            </li>
-          ))}
-        </ul>
-
         {session?.user ? (
-          <p className="mt-6 rounded-xl bg-emerald/20 px-4 py-3 text-center text-sm text-fg">
-            {t('auth.already', { name: session.user.name ?? '' })}{' '}
-            <Link href="/profile" className="font-semibold text-gold-soft underline">
-              {t('nav.profile')}
-            </Link>
-          </p>
+          <>
+            <h1 className="text-center font-serif text-3xl font-bold text-fg">{t('auth.title')}</h1>
+            <p className="mt-6 rounded-xl bg-emerald/20 px-4 py-3 text-center text-sm text-fg">
+              {t('auth.already', { name: session.user.name ?? '' })}{' '}
+              <Link href="/profile" className="font-semibold text-gold-soft underline">
+                {t('nav.profile')}
+              </Link>
+            </p>
+          </>
         ) : (
-          <div className="mt-6 space-y-3">
+          <div className="space-y-4">
             {error && <p className="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{t('auth.error')}</p>}
 
-            {googleEnabled ? (
-              <form action={signInGoogle}>
-                <button
-                  type="submit"
-                  className="flex min-h-12 w-full items-center justify-center gap-3 rounded-xl bg-white px-4 font-semibold text-ink transition hover:bg-cream"
-                >
-                  <GoogleMark />
-                  {t('auth.google')}
-                </button>
-              </form>
-            ) : (
-              <p className="rounded-xl border border-gold/30 px-4 py-3 text-sm text-fg/70">
-                {t('auth.googleOff')}
-                {process.env.NODE_ENV === 'development' && (
-                  <>
-                    {' '}
-                    {t('auth.googleSetup')} <code className="rounded bg-fg/10 px-1.5 py-0.5 font-mono text-gold-soft">npm run setup:google</code>
-                  </>
-                )}
-              </p>
+            <AuthForms initialMode={mode === 'register' ? 'register' : 'login'} redirectTo={redirectTo} />
+
+            {googleEnabled && (
+              <>
+                <div className="flex items-center gap-3 text-xs uppercase tracking-wide text-fg/45">
+                  <span className="h-px flex-1 bg-fg/15" />
+                  {t('auth.or')}
+                  <span className="h-px flex-1 bg-fg/15" />
+                </div>
+                <form action={signInGoogle}>
+                  <button
+                    type="submit"
+                    className="flex min-h-12 w-full items-center justify-center gap-3 rounded-xl bg-white px-4 font-semibold text-ink transition hover:bg-cream"
+                  >
+                    <GoogleMark />
+                    {t('auth.google')}
+                  </button>
+                </form>
+              </>
             )}
 
-            <button
-              type="button"
-              disabled
-              className="flex min-h-12 w-full cursor-not-allowed items-center justify-center gap-3 rounded-xl border border-fg/20 px-4 text-fg/50"
-            >
-              <Send size={18} aria-hidden />
-              {t('auth.telegramSoon')}
-            </button>
+            <ul className="space-y-1.5 border-t border-fg/10 pt-4 text-sm text-fg/75">
+              {(['auth.why1', 'auth.why2', 'auth.why3'] as const).map((key) => (
+                <li key={key} className="flex gap-2">
+                  <Check size={16} className="mt-0.5 shrink-0 text-emerald-soft" aria-hidden />
+                  {t(key)}
+                </li>
+              ))}
+            </ul>
 
             {devLoginEnabled && (
               <form action={signInDev} className="rounded-xl border border-dashed border-gold/50 p-4">

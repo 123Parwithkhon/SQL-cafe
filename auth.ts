@@ -1,14 +1,38 @@
-import NextAuth, { type NextAuthConfig } from 'next-auth';
+import NextAuth, { CredentialsSignin, type NextAuthConfig } from 'next-auth';
 import Google from 'next-auth/providers/google';
 import Credentials from 'next-auth/providers/credentials';
 import { getUser, upsertUser, type FullUser } from '@/lib/stats';
+import { checkPasswordLogin, normalizeEmail, validPassword } from '@/lib/accounts';
+
+/** Слишком много неверных паролей — вход по этому email временно закрыт */
+class LockedError extends CredentialsSignin {
+  code = 'locked';
+}
 
 export const googleEnabled = Boolean(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET);
 export const devLoginEnabled =
   process.env.VERCEL_ENV !== 'production' &&
   (process.env.NODE_ENV === 'development' || process.env.AUTH_DEV_LOGIN === 'true');
 
-const providers: NextAuthConfig['providers'] = [];
+// Вход по email и паролю работает всегда — без внешних сервисов.
+// Регистрация — в /api/register, здесь только проверка пароля.
+const providers: NextAuthConfig['providers'] = [
+  Credentials({
+    id: 'password',
+    name: 'Email и пароль',
+    credentials: { email: { type: 'email' }, password: { type: 'password' } },
+    async authorize(credentials) {
+      const email = normalizeEmail(credentials?.email);
+      if (!email || !validPassword(credentials?.password)) return null;
+      const result = await checkPasswordLogin(email, credentials.password as string);
+      if (!result.ok) {
+        if (result.reason === 'locked') throw new LockedError();
+        return null;
+      }
+      return { id: email, name: result.name, email };
+    },
+  }),
+];
 if (googleEnabled) providers.push(Google);
 if (devLoginEnabled) {
   providers.push(
@@ -30,6 +54,13 @@ if (devLoginEnabled) {
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers,
   trustHost: true,
+  // Неверный пароль — обычная ситуация, а не ошибка сервера: не засоряем логи
+  logger: {
+    error(err) {
+      if (err instanceof CredentialsSignin) return;
+      console.error('[auth]', err);
+    },
+  },
   session: { strategy: 'jwt', maxAge: 60 * 60 * 24 * 90 },
   pages: { signIn: '/auth', error: '/auth' },
   callbacks: {

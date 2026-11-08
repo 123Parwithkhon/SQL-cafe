@@ -10,6 +10,7 @@ const ACTIONS: Record<string, string> = {
   delete_user: 'удалил пользователя',
   revoke_certificate: 'отозвал сертификат',
   export_users: 'выгрузил список пользователей',
+  reset_password: 'сбросил пароль',
 };
 
 export default async function AdminOverviewPage() {

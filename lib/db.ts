@@ -65,6 +65,11 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS blocked BOOLEAN NOT NULL DEFAULT fals
 ALTER TABLE users ADD COLUMN IF NOT EXISTS last_seen_at TIMESTAMPTZ;
 CREATE INDEX IF NOT EXISTS idx_users_email ON users (lower(email));
 
+-- Вход по email и паролю: хеш scrypt, счётчик неудачных попыток и временная блокировка от подбора
+ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS failed_logins INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS locked_until TIMESTAMPTZ;
+
 -- Каждая проверка решения (и гостей, и вошедших) — для аналитики «самые трудные задания»
 CREATE TABLE IF NOT EXISTS attempts (
   id         BIGSERIAL PRIMARY KEY,

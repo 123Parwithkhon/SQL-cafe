@@ -89,6 +89,8 @@ export type AdminUserRow = {
   role: 'user' | 'admin';
   blocked: boolean;
   isOwner: boolean;
+  /** Способ входа: google, password, dev */
+  provider: string;
   solved: number;
   points: number;
   createdAt: string;
@@ -117,7 +119,7 @@ export async function listUsers(opts: { q?: string; sort?: UserSort; page?: numb
 
   const [rows, count] = await Promise.all([
     query<Omit<AdminUserRow, 'isOwner'>>(
-      `SELECT u.id::text AS id, u.name, u.email, u.image, u.city, u.university, u.role, u.blocked,
+      `SELECT u.id::text AS id, u.name, u.email, u.image, u.city, u.university, u.role, u.blocked, u.provider,
               COALESCE(s.solved, 0)::int AS solved, COALESCE(s.points, 0)::int AS points,
               to_char(u.created_at AT TIME ZONE 'Asia/Dushanbe', 'YYYY-MM-DD HH24:MI') AS "createdAt",
               to_char(u.last_seen_at AT TIME ZONE 'Asia/Dushanbe', 'YYYY-MM-DD HH24:MI') AS "lastSeenAt"
@@ -151,7 +153,7 @@ export type AdminUserDetail = AdminUserRow & {
 export async function getUserDetail(id: string): Promise<AdminUserDetail | null> {
   if (!/^\d{1,18}$/.test(id)) return null;
   const list = await query<Omit<AdminUserRow, 'isOwner'>>(
-    `SELECT u.id::text AS id, u.name, u.email, u.image, u.city, u.university, u.role, u.blocked,
+    `SELECT u.id::text AS id, u.name, u.email, u.image, u.city, u.university, u.role, u.blocked, u.provider,
             (SELECT COUNT(*) FROM solves WHERE user_id = u.id AND verified)::int AS solved,
             (SELECT COALESCE(SUM(points), 0) FROM solves WHERE user_id = u.id AND verified)::int AS points,
             to_char(u.created_at AT TIME ZONE 'Asia/Dushanbe', 'YYYY-MM-DD HH24:MI') AS "createdAt",
@@ -294,7 +296,7 @@ export async function recentLog(limit = 20): Promise<LogEntry[]> {
 /** Все пользователи для CSV (до 50 000 строк) */
 export async function exportUsers(): Promise<Omit<AdminUserRow, 'image' | 'isOwner'>[]> {
   return query<Omit<AdminUserRow, 'image' | 'isOwner'>>(
-    `SELECT u.id::text AS id, u.name, u.email, u.city, u.university, u.role, u.blocked,
+    `SELECT u.id::text AS id, u.name, u.email, u.city, u.university, u.role, u.blocked, u.provider,
             COALESCE(s.solved, 0)::int AS solved, COALESCE(s.points, 0)::int AS points,
             to_char(u.created_at AT TIME ZONE 'Asia/Dushanbe', 'YYYY-MM-DD HH24:MI') AS "createdAt",
             to_char(u.last_seen_at AT TIME ZONE 'Asia/Dushanbe', 'YYYY-MM-DD HH24:MI') AS "lastSeenAt"

@@ -11,6 +11,7 @@ const ERRORS: Record<string, string> = {
   forbidden: 'Нет прав. Возможно, вас разжаловали — обновите страницу.',
   not_found: 'Пользователь не найден.',
   bad_origin: 'Запрос отклонён (другой сайт).',
+  not_password_account: 'Этот пользователь входит не по паролю.',
 };
 
 type Props = {
@@ -18,13 +19,14 @@ type Props = {
   name: string;
   blocked: boolean;
   role: 'user' | 'admin';
-  can: { block: boolean; role: boolean; remove: boolean };
+  can: { block: boolean; role: boolean; remove: boolean; reset?: boolean };
 };
 
 export function UserActions({ userId, name, blocked, role, can }: Props) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState<string | null>(null);
 
   async function call(method: 'PATCH' | 'DELETE', body?: object) {
     setBusy(true);
@@ -40,6 +42,11 @@ export function UserActions({ userId, name, blocked, role, can }: Props) {
         setError(ERRORS[data.error] ?? 'Не получилось. Попробуйте ещё раз.');
         return;
       }
+      if (body && 'resetPassword' in body) {
+        const data = await res.json().catch(() => ({}));
+        setNewPassword(data.password ?? null);
+        return;
+      }
       if (method === 'DELETE') router.push('/admin/users');
       router.refresh();
     } catch {
@@ -49,7 +56,7 @@ export function UserActions({ userId, name, blocked, role, can }: Props) {
     }
   }
 
-  if (!can.block && !can.role && !can.remove) return null;
+  if (!can.block && !can.role && !can.remove && !can.reset) return null;
   const btn = 'min-h-9 rounded-lg border px-3 text-sm font-semibold transition disabled:opacity-50';
 
   return (
@@ -75,6 +82,18 @@ export function UserActions({ userId, name, blocked, role, can }: Props) {
             {role === 'admin' ? 'Снять админа' : 'Сделать админом'}
           </button>
         )}
+        {can.reset && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => {
+              if (window.confirm(`Выдать «${name}» новый временный пароль? Старый перестанет работать.`)) call('PATCH', { resetPassword: true });
+            }}
+            className={`${btn} border-gold/50 text-fg hover:bg-fg/5`}
+          >
+            Сбросить пароль
+          </button>
+        )}
         {can.remove && (
           <button
             type="button"
@@ -88,6 +107,13 @@ export function UserActions({ userId, name, blocked, role, can }: Props) {
           </button>
         )}
       </div>
+      {newPassword && (
+        <p role="status" className="max-w-xs rounded-lg border border-gold/50 bg-gold/10 px-3 py-2 text-right text-sm text-fg">
+          Новый пароль: <code className="select-all font-mono font-bold text-gold-soft">{newPassword}</code>
+          <br />
+          <span className="text-xs text-fg/60">Передайте его пользователю — больше он показан не будет.</span>
+        </p>
+      )}
       {error && <p role="alert" className="text-sm text-red-500">{error}</p>}
     </div>
   );

@@ -1,5 +1,5 @@
 // app/api/admin/users/[id]/route.server.ts — действия администратора с пользователем
-// PATCH { blocked?: boolean, role?: 'user' | 'admin' }   DELETE — удалить пользователя
+// PATCH { blocked?: boolean, role?: 'user' | 'admin' } | { resetPassword: true }   DELETE — удалить пользователя
 //
 // Правила:
 //  • с самим собой ничего сделать нельзя;
@@ -9,6 +9,7 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/stats';
 import { deleteUser, updateUser } from '@/lib/admin';
+import { resetPassword } from '@/lib/accounts';
 import { guardAdminMutation, isOwner, jsonError } from '@/lib/admin-guard';
 
 export const runtime = 'nodejs';
@@ -30,11 +31,23 @@ export async function PATCH(request: Request, { params }: Ctx) {
   if (target.id === admin.id) return jsonError('self', 400);
   if (isOwner(target)) return jsonError('owner_protected', 403);
 
-  let body: { blocked?: unknown; role?: unknown };
+  let body: { blocked?: unknown; role?: unknown; resetPassword?: unknown };
   try {
     body = await request.json();
   } catch {
     return jsonError('bad_request', 400);
+  }
+
+  // Сброс пароля — по тем же правилам, что и блокировка. Новый пароль показывается админу один раз.
+  if (body.resetPassword === true) {
+    if (target.isAdmin && !isOwner(admin)) return jsonError('owner_only', 403);
+    try {
+      const password = await resetPassword(admin.id, target.id);
+      return password ? NextResponse.json({ ok: true, password }) : jsonError('not_password_account', 400);
+    } catch (err) {
+      console.error('[admin] reset password', err);
+      return jsonError('internal', 500);
+    }
   }
   const change: { blocked?: boolean; role?: 'user' | 'admin' } = {};
   if (body.blocked !== undefined) {
