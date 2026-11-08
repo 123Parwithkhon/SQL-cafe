@@ -306,3 +306,14 @@ export async function exportUsers(): Promise<Omit<AdminUserRow, 'image' | 'isOwn
      ORDER BY u.id LIMIT 50000`,
   );
 }
+
+/** Переименовать (модерация: оскорбительное или чужое имя в рейтинге) */
+export async function renameUser(adminId: string, userId: string, name: string) {
+  const rows = await query<{ old: string }>(
+    'UPDATE users u SET name = $2 FROM (SELECT name AS old FROM users WHERE id = $1) o WHERE u.id = $1 RETURNING o.old',
+    [userId, name],
+  );
+  if (!rows[0]) return false;
+  await logAction(adminId, 'rename', userId, `${rows[0].old} → ${name}`);
+  return true;
+}

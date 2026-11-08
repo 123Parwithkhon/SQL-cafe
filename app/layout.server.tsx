@@ -5,6 +5,7 @@ import type { AuthUser } from '@/components/AuthProvider';
 import { RootShell, siteMetadata, siteViewport } from '@/components/RootShell';
 import { auth } from '@/auth';
 import { getUser, touchLastSeen } from '@/lib/stats';
+import { getAnnouncement, type Announcement } from '@/lib/announcement';
 import './globals.css';
 
 export const metadata = siteMetadata;
@@ -18,6 +19,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // Имя берём из нашей базы: пользователь мог изменить его в профиле.
   // Если база недоступна — сайт работает дальше как для гостя.
   let user: AuthUser = null;
+  let announcement: Announcement | null = null;
+  try {
+    announcement = await getAnnouncement();
+  } catch (err) {
+    console.error('[layout] объявление:', err);
+  }
   try {
     const session = await auth();
     if (session?.user?.id) {
@@ -33,7 +40,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   }
 
   return (
-    <RootShell lang={lang} theme={theme} user={user}>
+    <RootShell lang={lang} theme={theme} user={user} announcement={announcement}>
       {children}
     </RootShell>
   );

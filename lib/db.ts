@@ -70,6 +70,13 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS failed_logins INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS locked_until TIMESTAMPTZ;
 
+-- Настройки сайта, которые меняет админка (например, объявление для всех)
+CREATE TABLE IF NOT EXISTS site_settings (
+  key        TEXT PRIMARY KEY,
+  value      TEXT NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- Каждая проверка решения (и гостей, и вошедших) — для аналитики «самые трудные задания»
 CREATE TABLE IF NOT EXISTS attempts (
   id         BIGSERIAL PRIMARY KEY,

@@ -1,5 +1,5 @@
 // app/api/admin/users/[id]/route.server.ts — действия администратора с пользователем
-// PATCH { blocked?: boolean, role?: 'user' | 'admin' } | { resetPassword: true }   DELETE — удалить пользователя
+// PATCH { blocked?: boolean, role?: 'user' | 'admin' } | { resetPassword: true } | { name }   DELETE — удалить пользователя
 //
 // Правила:
 //  • с самим собой ничего сделать нельзя;
@@ -8,8 +8,8 @@
 //  • обычный администратор может только блокировать и разблокировать обычных пользователей.
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/stats';
-import { deleteUser, updateUser } from '@/lib/admin';
-import { resetPassword } from '@/lib/accounts';
+import { deleteUser, renameUser, updateUser } from '@/lib/admin';
+import { normalizeName, resetPassword } from '@/lib/accounts';
 import { guardAdminMutation, isOwner, jsonError } from '@/lib/admin-guard';
 
 export const runtime = 'nodejs';
@@ -31,11 +31,25 @@ export async function PATCH(request: Request, { params }: Ctx) {
   if (target.id === admin.id) return jsonError('self', 400);
   if (isOwner(target)) return jsonError('owner_protected', 403);
 
-  let body: { blocked?: unknown; role?: unknown; resetPassword?: unknown };
+  let body: { blocked?: unknown; role?: unknown; resetPassword?: unknown; name?: unknown };
   try {
     body = await request.json();
   } catch {
     return jsonError('bad_request', 400);
+  }
+
+  // Переименование (модерация) — по тем же правилам, что и блокировка
+  if (body.name !== undefined) {
+    const name = normalizeName(body.name);
+    if (!name) return jsonError('invalid_name', 422);
+    if (target.isAdmin && !isOwner(admin)) return jsonError('owner_only', 403);
+    try {
+      await renameUser(admin.id, target.id, name);
+      return NextResponse.json({ ok: true });
+    } catch (err) {
+      console.error('[admin] rename', err);
+      return jsonError('internal', 500);
+    }
   }
 
   // Сброс пароля — по тем же правилам, что и блокировка. Новый пароль показывается админу один раз.

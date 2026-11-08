@@ -5,6 +5,7 @@ import {
   getCertificateStatus, getProfileStats, getUser, type CertificateStatus, type ProfileStats, type PublicUser,
 } from '@/lib/stats';
 import { ProfileView } from '@/components/ProfileView';
+import { ChangePassword } from '@/components/ChangePassword';
 
 export const metadata: Metadata = { title: 'Профиль' };
 
@@ -12,7 +13,7 @@ export default async function ProfilePage() {
   const session = await auth();
   const tasks = getPublicTasks().map(({ id, topic, level, title_ru, title_tj }) => ({ id, topic, level, title_ru, title_tj }));
 
-  let user: PublicUser | null = null;
+  let user: (PublicUser & { provider?: string }) | null = null;
   let stats: ProfileStats | null = null;
   let certificates: CertificateStatus[] = [];
   let failed = false;
@@ -35,6 +36,9 @@ export default async function ProfilePage() {
   }
 
   return (
-    <ProfileView tasks={tasks} user={user} stats={stats} certificates={certificates} failed={failed} signOutAction={signOutAction} />
+    <>
+      <ProfileView tasks={tasks} user={user} stats={stats} certificates={certificates} failed={failed} signOutAction={signOutAction} />
+      {user?.provider === 'password' && <ChangePassword />}
+    </>
   );
 }

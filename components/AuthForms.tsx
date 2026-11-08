@@ -1,7 +1,7 @@
 'use client';
 
 // Вход и регистрация по email и паролю. Одна карточка, переключение «Войти / Зарегистрироваться».
-import { useId, useState, type ComponentType, type FormEvent } from 'react';
+import { useEffect, useId, useState, type ComponentType, type FormEvent } from 'react';
 import { signIn } from 'next-auth/react';
 import { useLang } from './LangProvider';
 import { Eye, EyeOff, Loader2, Lock, LogIn, Mail, User, type IconProps } from './icons';
@@ -29,6 +29,10 @@ export function AuthForms({ initialMode, redirectTo }: { initialMode: Mode; redi
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<DictKey | null>(null);
+  // Пока скрипты не загрузились, кнопка неактивна: иначе на медленном интернете форма отправилась бы
+  // обычной перезагрузкой страницы и введённое пропало бы
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
 
   function switchMode(next: Mode) {
     setMode(next);
@@ -131,7 +135,7 @@ export function AuthForms({ initialMode, redirectTo }: { initialMode: Mode; redi
 
       <button
         type="submit"
-        disabled={busy}
+        disabled={busy || !ready}
         className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-terra px-4 font-semibold text-white transition hover:bg-terra-dark disabled:opacity-60"
       >
         {busy ? <Loader2 size={18} className="animate-spin" /> : <LogIn size={18} aria-hidden />}

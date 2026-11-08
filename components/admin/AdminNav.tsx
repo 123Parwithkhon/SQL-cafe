@@ -8,12 +8,14 @@ const LINKS = [
   { href: '/admin/users', label: 'Пользователи' },
   { href: '/admin/tasks', label: 'Задания' },
   { href: '/admin/certificates', label: 'Сертификаты' },
+  { href: '/admin/announcement', label: 'Объявление' },
 ];
 
 export function AdminNav() {
   const pathname = usePathname();
   return (
-    <nav className="result-scroll mt-4 flex gap-1 border-b border-gold/30" aria-label="Разделы админки">
+    // Телефон: сетка кнопок (все разделы видны сразу); компьютер: вкладки с подчёркиванием
+    <nav className="mt-4 grid grid-cols-3 gap-1.5 sm:flex sm:gap-1 sm:border-b sm:border-gold/30" aria-label="Разделы админки">
       {LINKS.map(({ href, label }) => {
         const active = href === '/admin' ? pathname === '/admin' : pathname.startsWith(href);
         return (
@@ -21,8 +23,8 @@ export function AdminNav() {
             key={href}
             href={href}
             aria-current={active ? 'page' : undefined}
-            className={`-mb-px whitespace-nowrap border-b-2 px-3 py-2 text-sm font-semibold transition ${
-              active ? 'border-gold text-gold-soft' : 'border-transparent text-fg/70 hover:text-fg'
+            className={`flex min-h-11 items-center justify-center rounded-lg border px-2 text-center text-xs font-semibold transition sm:-mb-px sm:rounded-none sm:border-0 sm:border-b-2 sm:px-3 sm:text-sm ${
+              active ? 'border-gold bg-gold/15 text-gold-soft sm:bg-transparent' : 'border-gold/25 text-fg/75 hover:text-fg sm:border-transparent'
             }`}
           >
             {label}

@@ -1,5 +1,7 @@
 // Обзор: ключевые цифры, активность за 14 дней, последние действия администраторов
+import Link from 'next/link';
 import { getOverview, recentLog } from '@/lib/admin';
+import { getLeaderboard } from '@/lib/stats';
 import { DailyBars, DailyTable, StatTile } from '@/components/admin/Charts';
 
 const ACTIONS: Record<string, string> = {
@@ -11,10 +13,15 @@ const ACTIONS: Record<string, string> = {
   revoke_certificate: 'отозвал сертификат',
   export_users: 'выгрузил список пользователей',
   reset_password: 'сбросил пароль',
+  create_user: 'создал пользователя',
+  rename: 'переименовал',
+  announcement_on: 'опубликовал объявление',
+  announcement_off: 'снял объявление',
 };
 
 export default async function AdminOverviewPage() {
-  const [o, log] = await Promise.all([getOverview(), recentLog(15)]);
+  const [o, log, week] = await Promise.all([getOverview(), recentLog(15), getLeaderboard('week', {})]);
+  const top = week.rows.slice(0, 5);
   const pct = o.successRate7d === null ? '—' : `${Math.round(o.successRate7d * 100)}%`;
 
   return (
@@ -32,6 +39,25 @@ export default async function AdminOverviewPage() {
         <DailyBars title="Попытки проверки" points={o.daily.map((d) => ({ day: d.day, value: d.attempts }))} />
       </div>
       <DailyTable rows={o.daily} />
+
+      <section>
+        <h2 className="font-serif text-lg font-bold text-gold">Лучшие за неделю</h2>
+        {top.length === 0 ? (
+          <p className="mt-2 text-sm text-fg/60">На этой неделе ещё никто не решал задания.</p>
+        ) : (
+          <ol className="mt-2 divide-y divide-fg/10 rounded-xl border border-gold/30 bg-panel text-sm">
+            {top.map((r) => (
+              <li key={r.id}>
+                <Link href={`/admin/users/${r.id}`} className="flex items-center gap-3 px-4 py-2.5 hover:bg-fg/5">
+                  <span className="w-5 text-right font-bold text-gold">{r.rank}</span>
+                  <span className="min-w-0 flex-1 truncate text-fg">{r.name}</span>
+                  <span className="whitespace-nowrap text-fg/70">{r.points} очк. · {r.solved} зад.</span>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
 
       <section>
         <h2 className="font-serif text-lg font-bold text-gold">Журнал действий</h2>

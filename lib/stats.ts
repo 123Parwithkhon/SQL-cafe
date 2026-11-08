@@ -12,7 +12,7 @@ const WEEK_START = `(date_trunc('week', now() AT TIME ZONE 'Asia/Dushanbe') AT T
 const TODAY = `(now() AT TIME ZONE 'Asia/Dushanbe')::date`;
 
 export type PublicUser = { id: string; name: string; image: string | null; city: string | null; university: string | null };
-export type FullUser = PublicUser & { email: string | null; role: 'user' | 'admin'; blocked: boolean; isAdmin: boolean };
+export type FullUser = PublicUser & { email: string | null; role: 'user' | 'admin'; blocked: boolean; isAdmin: boolean; provider: string };
 
 /** Главные администраторы — из переменной окружения ADMIN_EMAILS (через запятую). Их нельзя разжаловать из админки. */
 export function adminEmails(): string[] {
@@ -40,7 +40,7 @@ export async function upsertUser(provider: string, providerId: string, name: str
 
 export async function getUser(userId: string): Promise<FullUser | null> {
   const rows = await query<Omit<FullUser, 'isAdmin'>>(
-    'SELECT id::text AS id, name, image, city, university, email, role, blocked FROM users WHERE id = $1',
+    'SELECT id::text AS id, name, image, city, university, email, role, blocked, provider FROM users WHERE id = $1',
     [userId],
   );
   const u = rows[0];

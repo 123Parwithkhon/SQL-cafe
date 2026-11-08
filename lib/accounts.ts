@@ -76,3 +76,28 @@ export async function resetPassword(adminId: string, userId: string): Promise<st
   await logAction(adminId, 'reset_password', userId, rows[0].name);
   return password;
 }
+
+/** Смена своего пароля: нужен текущий. Неверный текущий считается неудачной попыткой входа. */
+export async function changePassword(userId: string, current: string, next: string): Promise<'ok' | 'wrong' | 'locked' | 'not_password'> {
+  const rows = await query<{ email: string }>(`SELECT provider_id AS email FROM users WHERE id = $1 AND provider = 'password'`, [userId]);
+  if (!rows[0]) return 'not_password';
+  const check = await checkPasswordLogin(rows[0].email, current);
+  if (!check.ok) return check.reason;
+  await query('UPDATE users SET password_hash = $2 WHERE id = $1', [userId, await hashPassword(next)]);
+  return 'ok';
+}
+
+/** Администратор заводит аккаунт (например, для ученика без почты под рукой). Пароль — временный, показывается один раз. */
+export async function createUserByAdmin(adminId: string, name: string, email: string): Promise<{ id: string; password: string } | 'exists'> {
+  const password = tempPassword();
+  const rows = await query<{ id: string }>(
+    `INSERT INTO users (provider, provider_id, name, email, password_hash)
+     VALUES ('password', $1, $2, $1, $3)
+     ON CONFLICT (provider, provider_id) DO NOTHING
+     RETURNING id::text AS id`,
+    [email, name, await hashPassword(password)],
+  );
+  if (!rows[0]) return 'exists';
+  await logAction(adminId, 'create_user', rows[0].id, `${name} <${email}>`);
+  return { id: rows[0].id, password };
+}

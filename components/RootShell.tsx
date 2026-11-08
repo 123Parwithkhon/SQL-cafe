@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 import { THEME_COOKIE, translate, type Lang, type Theme } from '@/lib/i18n';
 import { LangProvider } from './LangProvider';
 import { AuthProvider, type AuthUser } from './AuthProvider';
+import { AnnouncementBar, type AnnouncementData } from './AnnouncementBar';
 import { Header } from './Header';
 import { Celebration } from './Celebration';
 import { OrnamentBand } from './Ornament';
@@ -29,9 +30,9 @@ export const siteViewport: Viewport = {
 /** Статическая сборка: тема из cookie ставится до отрисовки страницы, без «мигания» */
 const THEME_SCRIPT = `try{var m=document.cookie.match(/(?:^|; )${THEME_COOKIE}=(light|dark)/);if(m)document.documentElement.dataset.theme=m[1]}catch(e){}`;
 
-type Props = { lang: Lang; theme: Theme; user: AuthUser; applySavedTheme?: boolean; children: ReactNode };
+type Props = { lang: Lang; theme: Theme; user: AuthUser; announcement?: AnnouncementData; applySavedTheme?: boolean; children: ReactNode };
 
-export function RootShell({ lang, theme, user, applySavedTheme = false, children }: Props) {
+export function RootShell({ lang, theme, user, announcement = null, applySavedTheme = false, children }: Props) {
   return (
     <html lang={lang === 'tj' ? 'tg' : 'ru'} data-theme={theme} suppressHydrationWarning>
       <head>
@@ -45,6 +46,7 @@ export function RootShell({ lang, theme, user, applySavedTheme = false, children
         <LangProvider initialLang={lang}>
           <AuthProvider user={user}>
             <Header theme={theme} />
+            <AnnouncementBar data={announcement} />
             {user?.blocked && (
               <div role="status" className="mx-auto mt-2 max-w-6xl px-4">
                 <p className="rounded-lg border border-red-400/50 bg-red-500/10 px-3 py-2 text-sm text-fg">{translate(lang, 'account.blocked')}</p>
