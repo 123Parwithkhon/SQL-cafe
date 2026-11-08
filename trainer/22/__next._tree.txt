@@ -1,0 +1,6 @@
+:HL["/SQL-cafe/_next/static/chunks/2gyo33-zdvdfe.css","style"]
+:HL["https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap","style"]
+3:[["children",{"s":"__PAGE__","h":160}]]
+2:[["children",{"s":{"n":"id","t":"d","k":"22","s":[]},"h":96,"c":"$Q3"}]]
+1:[["children",{"s":"trainer","h":96,"c":"$Q2"}]]
+0:{"b":"zBi8h0fxF-ZpDA68KmXIu","t":{"t":{"s":"","h":80,"c":"$Q1"}}}

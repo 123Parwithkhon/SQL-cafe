@@ -1,0 +1,37 @@
+1:"$Sreact.fragment"
+2:"/SQL-cafe/_next/static/chunks/0umf92h1sb77c.js"
+3:"/SQL-cafe/_next/static/chunks/07kjm6anuszkm.js"
+4:"/SQL-cafe/_next/static/chunks/1fac4slhvaqcg.js"
+5:I[11103,["$2","$3","$4"],"LangProvider"]
+6:I[4012,["$2","$3","$4"],"AuthProvider"]
+7:I[70119,["$2","$3","$4"],"Header"]
+8:I[9714,["$2","$3","$4"],"AnnouncementBar"]
+9:I[39756,["$2","$3","$4"],"default"]
+a:"/SQL-cafe/_next/static/chunks/2zm6gsm98xdgs.js"
+b:I[8821,["$a","$4"],"default"]
+c:I[37457,["$2","$3","$4"],"default"]
+d:"/SQL-cafe/_next/static/chunks/2pb2eyllzqjj0.js"
+e:I[36768,["$d","$4"],"default"]
+f:I[73831,["$2","$3","$4"],"Celebration"]
+15:I[97367,["$2","$3","$4"],"OutletBoundary"]
+16:"$Sreact.suspense"
+18:"ViewportBoundary"
+19:I[97367,["$2","$3","$4"],"$18"]
+1b:"MetadataBoundary"
+1c:I[97367,["$2","$3","$4"],"$1b"]
+1e:I[68027,[],"default",1]
+:HL["/SQL-cafe/_next/static/chunks/2gyo33-zdvdfe.css","style"]
+:HL["https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap","style"]
+11:X
+13:[["children",{"s":"__PAGE__","h":512,"d":{"r":["$","$1","c",{"children":["$L14",[["$","script","script-0",{"src":"/SQL-cafe/_next/static/chunks/14ty724_q5e5o.js","async":true,"nonce":"$undefined"}]],["$","$L15",null,{"children":["$","$16",null,{"name":"Next.MetadataOutlet","children":"$@17"}]}]]}],"p":false,"v":null}}]]
+12:[["children",{"s":{"n":"id","t":"d","k":"1","s":[]},"h":512,"d":{"r":["$","$1","c",{"children":[null,["$","$L9",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Lc",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],"p":false,"v":"$11"},"c":"$Q13"}]]
+10:[["children",{"s":"trainer","h":512,"d":{"r":["$","$1","c",{"children":[null,["$","$L9",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Lc",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],"p":false,"v":"$11"},"c":"$Q12"}]]
+0:{"P":null,"c":["","trainer","1",""],"q":"","i":false,"t":{"t":{"s":"","h":528,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/SQL-cafe/_next/static/chunks/2gyo33-zdvdfe.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","script","script-0",{"src":"/SQL-cafe/_next/static/chunks/0umf92h1sb77c.js","async":true,"nonce":"$undefined"}],["$","script","script-1",{"src":"/SQL-cafe/_next/static/chunks/07kjm6anuszkm.js","async":true,"nonce":"$undefined"}],["$","script","script-2",{"src":"/SQL-cafe/_next/static/chunks/1fac4slhvaqcg.js","async":true,"nonce":"$undefined"}]],["$","html",null,{"lang":"ru","data-theme":"dark","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"try{var m=document.cookie.match(/(?:^|; )theme=(light|dark)/);if(m)document.documentElement.dataset.theme=m[1]}catch(e){}"}}],["$","link",null,{"rel":"preconnect","href":"https://fonts.googleapis.com"}],["$","link",null,{"rel":"preconnect","href":"https://fonts.gstatic.com","crossOrigin":""}],["$","link",null,{"rel":"stylesheet","href":"https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap"}]]}],["$","body",null,{"children":["$","$L5",null,{"initialLang":"ru","children":["$","$L6",null,{"user":null,"children":[["$","$L7",null,{"theme":"dark"}],["$","$L8",null,{"data":null}],"$undefined",["$","main",null,{"className":"mx-auto max-w-6xl px-4 py-6","children":["$","$L9",null,{"parallelRouterKey":"children","error":"$b","errorStyles":[],"errorScripts":[["$","script","script-0",{"src":"/SQL-cafe/_next/static/chunks/2zm6gsm98xdgs.js","async":true,"nonce":"$undefined"}]],"template":["$","$Lc",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","$Le",null,{}],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}],["$","div",null,{"aria-hidden":true,"className":"ornament-band h-3 w-full mx-auto mt-6 max-w-6xl opacity-60"}],["$","$Lf",null,{}],["$","footer",null,{"className":"mx-auto max-w-6xl px-4 pb-8 pt-4 text-center text-xs text-fg/40","children":[["$","p",null,{"children":"Чайхона SQL — учим SQL по-домашнему"}],["$","p",null,{"className":"mt-1","children":["Developed by ",["$","span",null,{"className":"font-semibold text-gold-soft/80","children":"Khan Service"}]]}]]}]]}]}]}]]}]]}],"p":false,"v":null},"c":"$Q10"},"h":{"r":["$","$1","h",{"children":[null,["$","$L19",null,{"children":"$L1a"}],["$","$L1c",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$16",null,{"name":"Next.Metadata","children":"$L1d"}]}],null]}],null]}],"p":false,"v":null}},"m":"$undefined","G":["$1e",[]],"S":true,"r":"$undefined","s":"$undefined","a":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"zBi8h0fxF-ZpDA68KmXIu"}
+1f:"/SQL-cafe/_next/static/chunks/14ty724_q5e5o.js"
+20:I[58888,["$1f"],"LegacyRedirect"]
+11:C
+14:["$","$L20",null,{"to":"/task/1","title":"1. Первый запрос"}]
+1a:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","2",{"name":"theme-color","content":"#1d3557"}]]
+21:I[27201,["$2","$3","$4"],"IconMark"]
+17:null
+1d:[["$","title","0",{"children":"Чайхона SQL — тренажёр SQL"}],["$","meta","1",{"name":"description","content":"Интерактивный тренажёр SQL на русском и таджикском. Решайте задачи на базе данных чайханы прямо в браузере."}],["$","meta","2",{"name":"robots","content":"noindex"}],["$","link","3",{"rel":"icon","href":"/SQL-cafe/icon.svg?icon.1f_g4lyjgrp-v.svg","sizes":"any","type":"image/svg+xml"}],["$","$L21","4",{}]]
