@@ -25,7 +25,7 @@ function RateBar({ t }: { t: TaskStat }) {
 export default async function AdminTasksPage() {
   const stats = await getTaskStats();
   const reliable = stats.filter((t) => t.attempts >= MIN_ATTEMPTS).sort((a, b) => (a.successRate ?? 1) - (b.successRate ?? 1));
-  const rest = stats.filter((t) => t.attempts < MIN_ATTEMPTS).sort((a, b) => b.attempts - a.attempts || a.id - b.id);
+  const rest = stats.filter((t) => t.attempts < MIN_ATTEMPTS).sort((a, b) => b.attempts - a.attempts || a.num - b.num);
   const rows = [...reliable, ...rest];
   const neverTried = stats.filter((t) => t.attempts === 0).length;
 
@@ -41,7 +41,7 @@ export default async function AdminTasksPage() {
         {rows.map((t) => (
           <li key={t.id} className="rounded-xl border border-gold/30 bg-panel p-3">
             <Link href={`/trainer/${t.id}`} className="font-semibold text-fg">
-              <span className="text-fg/50">№{t.id}</span> {t.title}
+              <span className="text-fg/50">№{t.num}</span> {t.title}
             </Link>
             <div className="mt-0.5 text-xs text-fg/55">
               {t.topic} · {LEVEL[t.level] ?? t.level} · попыток {t.attempts} · решили {t.solvers}
@@ -70,7 +70,7 @@ export default async function AdminTasksPage() {
               <tr key={t.id} className="border-t border-fg/10 hover:bg-fg/5">
                 <td className="px-3 py-2">
                   <Link href={`/trainer/${t.id}`} className="text-fg hover:underline">
-                    <span className="text-fg/50">№{t.id}</span> {t.title}
+                    <span className="text-fg/50">№{t.num}</span> {t.title}
                   </Link>
                   <div className="text-xs text-fg/50">{t.topic}</div>
                 </td>

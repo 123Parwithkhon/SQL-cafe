@@ -223,6 +223,8 @@ export async function deleteUser(adminId: string, userId: string) {
 
 export type TaskStat = {
   id: number;
+  /** Номер в курсе — тот, что видит ученик */
+  num: number;
   title: string;
   topic: string;
   level: string;
@@ -246,6 +248,7 @@ export async function getTaskStats(): Promise<TaskStat[]> {
     const a = byTask.get(t.id);
     return {
       id: t.id,
+      num: t.num,
       title: t.title_ru,
       topic: t.topic,
       level: t.level,

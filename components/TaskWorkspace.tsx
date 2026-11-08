@@ -278,7 +278,7 @@ export function TaskWorkspace({ task, prevId, nextId, variant = 'default', onSol
           {!interview && (
             <>
               <span>
-                {t('task.label')} {task.id}
+                {t('task.label')} {task.num}
               </span>
               <span aria-hidden>·</span>
             </>

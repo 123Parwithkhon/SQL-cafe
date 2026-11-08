@@ -133,7 +133,7 @@ export function TaskMap({ tasks }: { tasks: PublicTask[] }) {
                                 solved ? 'bg-emerald text-white' : 'bg-lazur text-on-dark'
                               }`}
                             >
-                              {solved ? <Check size={18} strokeWidth={3} aria-label={t('trainer.solved')} /> : task.id}
+                              {solved ? <Check size={18} strokeWidth={3} aria-label={t('trainer.solved')} /> : task.num}
                             </span>
                             <span className="min-w-0">
                               <span className="block truncate font-semibold">{lang === 'tj' ? task.title_tj : task.title_ru}</span>

@@ -18,7 +18,7 @@ function parseId(raw: string): number | null {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const id = parseId((await params).id);
   const task = id === null ? undefined : getPublicTask(id);
-  return { title: task ? `${task.id}. ${task.title_ru}` : 'Задание' };
+  return { title: task ? `${task.num}. ${task.title_ru}` : 'Задание' };
 }
 
 export default async function TaskPage({ params }: Props) {

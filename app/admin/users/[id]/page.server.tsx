@@ -86,7 +86,7 @@ export default async function AdminUserPage({ params }: { params: Promise<{ id: 
               <li key={s.taskId} className="rounded-xl border border-gold/30 bg-panel p-3">
                 <div className="flex flex-wrap items-baseline gap-x-2 text-sm">
                   <Link href={`/trainer/${s.taskId}`} className="font-semibold text-fg hover:underline">
-                    №{s.taskId} {getTask(s.taskId)?.title_ru ?? ''}
+                    №{getTask(s.taskId)?.num ?? s.taskId} {getTask(s.taskId)?.title_ru ?? ''}
                   </Link>
                   <span className="text-fg/60">+{s.points}</span>
                   {!s.verified && <span className="text-xs text-fg/50">(не проверено сервером)</span>}

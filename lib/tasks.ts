@@ -25,6 +25,11 @@ export type Task = {
   hints_tj: string[];
   /** Учебная база задания; по умолчанию — «Чайхана» */
   db?: DbName;
+  /**
+   * Номер, который видит ученик: место задания в курсе (1, 2, 3… без пропусков).
+   * id — внутренний и постоянный: на нём держатся прогресс, ссылки и решения в базе.
+   */
+  num: number;
 };
 
 /** Задание для браузера. solution есть только в статической сборке */
@@ -32,7 +37,10 @@ export type PublicTask = Omit<Task, 'solution'> & { solution?: string };
 
 // Номера заданий не меняются (на них завязан прогресс), а порядок — по курсу:
 // практикумы на новых базах (№115+) встают после своих тем
-const tasks = (tasksData as Task[]).slice().sort((a, b) => TOPICS.indexOf(a.topic) - TOPICS.indexOf(b.topic) || a.id - b.id);
+const tasks: Task[] = (tasksData as Omit<Task, 'num'>[])
+  .slice()
+  .sort((a, b) => TOPICS.indexOf(a.topic) - TOPICS.indexOf(b.topic) || a.id - b.id)
+  .map((t, i) => ({ ...t, num: i + 1 }));
 
 function toPublic({ solution, ...rest }: Task): PublicTask {
   return IS_STATIC ? { ...rest, solution } : rest;
