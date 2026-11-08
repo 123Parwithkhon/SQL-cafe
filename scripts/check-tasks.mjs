@@ -14,15 +14,21 @@ const tasksPath = path.join(root, 'content', 'tasks.json');
 const KEYS = ['id', 'topic', 'level', 'title_ru', 'title_tj', 'task_ru', 'task_tj', 'tables', 'solution', 'hints', 'hints_tj'];
 const OPTIONAL_KEYS = ['db'];
 // Порядок тем совпадает с lib/course.ts — задания должны идти по курсу
-const TOPICS = ['intro', 'select', 'where', 'order', 'functions', 'aggregate', 'join', 'subquery', 'set', 'modify', 'cte', 'window', 'analytics', 'final'];
+// Задания 1–114 идут строго по курсу; практикумы на новых базах дописаны в конец (номера не сдвигаются,
+// чтобы не сбить прогресс учеников) — сайт сам показывает их на своих местах в курсе
+const TOPICS = ['intro', 'select', 'where', 'order', 'functions', 'aggregate', 'maktab', 'join', 'subquery', 'set', 'modify', 'safar', 'cte', 'window', 'analytics', 'liga', 'final'];
+const APPENDED_TOPICS = ['maktab', 'safar', 'liga'];
 const SQL_TYPES = ['INTEGER', 'INT', 'REAL', 'TEXT', 'NUMERIC', 'BLOB'];
 const LEVELS = ['easy', 'medium', 'hard'];
 // Должно совпадать с lib/schema.ts
 const DB_TABLES = {
   chaikhana: ['visitors', 'tables', 'teas', 'orders', 'order_items'],
   bazaar: ['vendors', 'products', 'sales'],
+  maktab: ['classes', 'students', 'subjects', 'grades'],
+  safar: ['cities', 'routes', 'trips', 'tickets'],
+  liga: ['teams', 'players', 'matches', 'goals'],
 };
-const DB_FILES = { chaikhana: 'chaikhana.sqlite', bazaar: 'bazaar.sqlite' };
+const DB_FILES = { chaikhana: 'chaikhana.sqlite', bazaar: 'bazaar.sqlite', maktab: 'maktab.sqlite', safar: 'safar.sqlite', liga: 'liga.sqlite' };
 
 for (const file of Object.values(DB_FILES)) {
   if (!existsSync(path.join(root, 'public', file))) {
@@ -81,6 +87,7 @@ const isText = (v) => typeof v === 'string' && v.trim().length > 0;
 const seenIds = new Set();
 let failed = 0;
 let lastTopicIndex = 0;
+let lastAppendedIndex = -1;
 
 for (const [index, task] of tasks.entries()) {
   const errors = [];
@@ -100,8 +107,16 @@ for (const [index, task] of tasks.entries()) {
     errors.push(`неизвестный topic «${task.topic}»`);
   } else {
     const topicIndex = TOPICS.indexOf(task.topic);
-    if (topicIndex < lastTopicIndex) errors.push(`тема «${task.topic}» идёт не по порядку курса`);
-    lastTopicIndex = topicIndex;
+    if (APPENDED_TOPICS.includes(task.topic)) {
+      // Практикумы — в конце файла, по порядку между собой
+      if (task.id <= 114) errors.push('задания практикумов — после №114');
+      const appendedIndex = APPENDED_TOPICS.indexOf(task.topic);
+      if (appendedIndex < lastAppendedIndex) errors.push(`практикум «${task.topic}» идёт не по порядку`);
+      lastAppendedIndex = appendedIndex;
+    } else {
+      if (topicIndex < lastTopicIndex) errors.push(`тема «${task.topic}» идёт не по порядку курса`);
+      lastTopicIndex = topicIndex;
+    }
   }
   if (!LEVELS.includes(task.level)) errors.push(`неизвестный level «${task.level}»`);
   for (const k of ['title_ru', 'title_tj', 'task_ru', 'task_tj', 'solution']) {

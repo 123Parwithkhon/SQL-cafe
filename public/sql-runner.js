@@ -1,7 +1,7 @@
 // public/sql-runner.js — Web Worker: выполняет SQL студента в браузере через sql.js.
 // Работает в отдельном потоке: бесконечный запрос не подвесит страницу,
 // главный поток просто убьёт этот worker по таймауту.
-// Учебных баз две (chaikhana, bazaar); каждая скачивается один раз, при первом обращении.
+// Учебных баз пять (chaikhana, bazaar, maktab, safar, liga); каждая скачивается один раз, при первом обращении.
 /* global initSqlJs */
 // Префикс сайта (на GitHub Pages — подпапка, например /SQL-cafe) передаётся в адресе worker-а
 const BASE = new URLSearchParams(self.location.search).get('base') || '';
@@ -9,7 +9,7 @@ importScripts(BASE + '/sqljs/sql-wasm.js');
 
 // Меняйте версию при изменении баз, чтобы браузеры не держали старые копии
 const DB_VERSION = 4;
-const DB_FILES = { chaikhana: 'chaikhana.sqlite', bazaar: 'bazaar.sqlite' };
+const DB_FILES = { chaikhana: 'chaikhana.sqlite', bazaar: 'bazaar.sqlite', maktab: 'maktab.sqlite', safar: 'safar.sqlite', liga: 'liga.sqlite' };
 const MAX_ROWS = 1000;
 const MAX_BLOB = 1000000;
 

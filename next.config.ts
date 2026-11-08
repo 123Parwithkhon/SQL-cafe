@@ -36,6 +36,9 @@ const fullConfig: NextConfig = {
     '/api/check': [
       './public/chaikhana.sqlite',
       './public/bazaar.sqlite',
+      './public/maktab.sqlite',
+      './public/safar.sqlite',
+      './public/liga.sqlite',
       './vendor/sqljs/sql-wasm.js',
       './vendor/sqljs/sql-wasm.wasm',
     ],

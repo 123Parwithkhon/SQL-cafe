@@ -13,6 +13,9 @@ next-env.d.ts
 # Генерируются скриптами (npm run prepare:assets)
 public/chaikhana.sqlite
 public/bazaar.sqlite
+public/maktab.sqlite
+public/safar.sqlite
+public/liga.sqlite
 public/sqljs/
 
 _old/

@@ -4,7 +4,7 @@
 // вместе с заданием и проверка идёт в браузере (lib/sql/local-check.ts).
 import 'server-only';
 import tasksData from '@/content/tasks.json';
-import type { Topic } from './course';
+import { TOPICS, type Topic } from './course';
 import type { DbName } from './schema';
 import { IS_STATIC } from './env';
 
@@ -30,7 +30,9 @@ export type Task = {
 /** Задание для браузера. solution есть только в статической сборке */
 export type PublicTask = Omit<Task, 'solution'> & { solution?: string };
 
-const tasks = tasksData as Task[];
+// Номера заданий не меняются (на них завязан прогресс), а порядок — по курсу:
+// практикумы на новых базах (№115+) встают после своих тем
+const tasks = (tasksData as Task[]).slice().sort((a, b) => TOPICS.indexOf(a.topic) - TOPICS.indexOf(b.topic) || a.id - b.id);
 
 function toPublic({ solution, ...rest }: Task): PublicTask {
   return IS_STATIC ? { ...rest, solution } : rest;

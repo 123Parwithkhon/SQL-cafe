@@ -9,7 +9,7 @@ import path from 'node:path';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const all = process.argv.includes('--all');
 
-const targets = ['.next', 'public/sqljs', 'public/chaikhana.sqlite', 'public/bazaar.sqlite', 'next-env.d.ts', 'tsconfig.tsbuildinfo'];
+const targets = ['.next', 'public/sqljs', 'public/chaikhana.sqlite', 'public/bazaar.sqlite', 'public/maktab.sqlite', 'public/safar.sqlite', 'public/liga.sqlite', 'next-env.d.ts', 'tsconfig.tsbuildinfo'];
 if (all) targets.push('node_modules');
 
 function sizeOf(p) {

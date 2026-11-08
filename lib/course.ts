@@ -5,6 +5,8 @@ export type Topic =
   | 'join' | 'subquery' | 'set'
   | 'cte' | 'window' | 'analytics' | 'final'
   | 'modify'
+  // Практикумы на отдельных базах
+  | 'maktab' | 'safar' | 'liga'
   // Урок без заданий — «SQL на работе: MySQL и PostgreSQL»
   | 'dialects';
 
@@ -12,9 +14,9 @@ export type Tier = 'novice' | 'adept' | 'master' | 'expert';
 
 export const TIERS: { id: Tier; topics: Topic[] }[] = [
   { id: 'novice', topics: ['intro', 'select', 'where', 'order'] },
-  { id: 'adept', topics: ['functions', 'aggregate'] },
-  { id: 'master', topics: ['join', 'subquery', 'set', 'modify'] },
-  { id: 'expert', topics: ['cte', 'window', 'analytics', 'final'] },
+  { id: 'adept', topics: ['functions', 'aggregate', 'maktab'] },
+  { id: 'master', topics: ['join', 'subquery', 'set', 'modify', 'safar'] },
+  { id: 'expert', topics: ['cte', 'window', 'analytics', 'liga', 'final'] },
 ];
 
 export const TOPICS: Topic[] = TIERS.flatMap((tier) => tier.topics);

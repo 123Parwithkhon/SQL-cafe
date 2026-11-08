@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { QueryResult } from '@/lib/sql/compare';
 import { diagnose, type Hint } from '@/lib/sql/diagnose';
 import { preloadSql, resetDatabase, runSql, type BrowserRunResult } from '@/lib/sql/browser';
-import { DB_NAMES, SCHEMAS, type DbName } from '@/lib/schema';
+import { DB_NAMES, SCHEMAS, isDbName, type DbName } from '@/lib/schema';
 import { BASE_PATH, IS_STATIC } from '@/lib/env';
 import type { DictKey } from '@/lib/i18n';
 import { useLang } from './LangProvider';
@@ -89,7 +89,7 @@ export function PlaygroundView({ initialDb, initialSql, readFromUrl = false }: P
       const params = new URLSearchParams(window.location.search);
       const fromUrl = decodeQuery(params.get('q'));
       const dbParam = params.get('db');
-      if (dbParam === 'chaikhana' || dbParam === 'bazaar') setDb(dbParam);
+      if (isDbName(dbParam)) setDb(dbParam);
       if (fromUrl) {
         setSqlText(fromUrl);
         setEditorValue(fromUrl);
@@ -212,14 +212,15 @@ export function PlaygroundView({ initialDb, initialSql, readFromUrl = false }: P
       <p className="mt-2 text-fg/70">{t('playground.subtitle')}</p>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <div role="group" aria-label={t('playground.db')} className="flex overflow-hidden rounded-xl border border-gold/40 text-sm font-semibold">
+        {/* Пять баз: на телефоне — сеткой, чтобы кнопки не уходили за край экрана */}
+        <div role="group" aria-label={t('playground.db')} className="grid w-full grid-cols-3 overflow-hidden rounded-xl border border-gold/40 text-sm font-semibold sm:flex sm:w-auto">
           {DB_NAMES.map((name) => (
             <button
               key={name}
               type="button"
               onClick={() => setDb(name)}
               aria-pressed={db === name}
-              className={`min-h-10 px-4 transition ${db === name ? 'bg-gold text-lazur' : 'text-fg/80 hover:bg-fg/5'}`}
+              className={`min-h-10 px-3 transition sm:px-4 ${db === name ? 'bg-gold text-lazur' : 'text-fg/80 hover:bg-fg/5'}`}
             >
               {t(`db.${name}` as DictKey)}
             </button>

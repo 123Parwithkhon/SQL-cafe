@@ -13,7 +13,7 @@ export const RANKS: Rank[] = [
   { min: 15, ru: 'Ценитель чая', tj: 'Чойнӯш' },
   { min: 35, ru: 'Чайханщик', tj: 'Чойхоначӣ' },
   { min: 70, ru: 'Мастер', tj: 'Устод' },
-  { min: 114, ru: 'Великий мастер', tj: 'Устоди бузург' },
+  { min: 144, ru: 'Великий мастер', tj: 'Устоди бузург' },
 ];
 
 export function rankOf(solved: number): { rank: Rank; index: number; next: Rank | null; progress: number } {

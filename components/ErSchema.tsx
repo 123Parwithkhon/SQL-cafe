@@ -44,6 +44,42 @@ const DIAGRAMS: Record<DbName, Diagram> = {
       { from: ['sales', 'product_id'], to: ['products', 'id'], d: `M${right('sales')},${rowY('sales', 'product_id')} H380 V${rowY('products', 'id')} H${left('products')}` },
     ],
   },
+  maktab: {
+    // Цепочка слева направо: классы ← ученики ← оценки → предметы
+    layout: { classes: { x: 20, y: 20 }, students: { x: 210, y: 20 }, grades: { x: 400, y: 20 }, subjects: { x: 590, y: 20 } },
+    pk: { classes: ['id'], students: ['id'], subjects: ['id'], grades: ['id'] },
+    fk: { students: ['class_id'], grades: ['student_id', 'subject_id'] },
+    links: (rowY, left, right) => [
+      { from: ['students', 'class_id'], to: ['classes', 'id'], d: `M${left('students')},${rowY('students', 'class_id')} H190 V${rowY('classes', 'id')} H${right('classes')}` },
+      { from: ['grades', 'student_id'], to: ['students', 'id'], d: `M${left('grades')},${rowY('grades', 'student_id')} H380 V${rowY('students', 'id')} H${right('students')}` },
+      { from: ['grades', 'subject_id'], to: ['subjects', 'id'], d: `M${right('grades')},${rowY('grades', 'subject_id')} H570 V${rowY('subjects', 'id')} H${left('subjects')}` },
+    ],
+  },
+  safar: {
+    // Маршрут ссылается на города дважды: откуда и куда
+    layout: { cities: { x: 20, y: 20 }, routes: { x: 210, y: 20 }, trips: { x: 400, y: 20 }, tickets: { x: 590, y: 20 } },
+    pk: { cities: ['id'], routes: ['id'], trips: ['id'], tickets: ['id'] },
+    fk: { routes: ['from_city_id', 'to_city_id'], trips: ['route_id'], tickets: ['trip_id'] },
+    links: (rowY, left, right) => [
+      { from: ['routes', 'from_city_id'], to: ['cities', 'id'], d: `M${left('routes')},${rowY('routes', 'from_city_id')} H192 V${rowY('cities', 'id')} H${right('cities')}` },
+      { from: ['routes', 'to_city_id'], to: ['cities', 'id'], d: `M${left('routes')},${rowY('routes', 'to_city_id')} H184 V${rowY('cities', 'id') + 4} H${right('cities')}` },
+      { from: ['trips', 'route_id'], to: ['routes', 'id'], d: `M${left('trips')},${rowY('trips', 'route_id')} H380 V${rowY('routes', 'id')} H${right('routes')}` },
+      { from: ['tickets', 'trip_id'], to: ['trips', 'id'], d: `M${left('tickets')},${rowY('tickets', 'trip_id')} H570 V${rowY('trips', 'id')} H${right('trips')}` },
+    ],
+  },
+  liga: {
+    // Матч ссылается на команды дважды: хозяева и гости
+    layout: { teams: { x: 20, y: 20 }, players: { x: 210, y: 20 }, matches: { x: 210, y: 190 }, goals: { x: 400, y: 20 } },
+    pk: { teams: ['id'], players: ['id'], matches: ['id'], goals: ['id'] },
+    fk: { players: ['team_id'], matches: ['home_id', 'away_id'], goals: ['match_id', 'player_id'] },
+    links: (rowY, left, right) => [
+      { from: ['players', 'team_id'], to: ['teams', 'id'], d: `M${left('players')},${rowY('players', 'team_id')} H192 V${rowY('teams', 'id')} H${right('teams')}` },
+      { from: ['matches', 'home_id'], to: ['teams', 'id'], d: `M${left('matches')},${rowY('matches', 'home_id')} H186 V${rowY('teams', 'id') + 4} H${right('teams')}` },
+      { from: ['matches', 'away_id'], to: ['teams', 'id'], d: `M${left('matches')},${rowY('matches', 'away_id')} H180 V${rowY('teams', 'id') + 8} H${right('teams')}` },
+      { from: ['goals', 'player_id'], to: ['players', 'id'], d: `M${left('goals')},${rowY('goals', 'player_id')} H380 V${rowY('players', 'id')} H${right('players')}` },
+      { from: ['goals', 'match_id'], to: ['matches', 'id'], d: `M${left('goals')},${rowY('goals', 'match_id')} H390 V${rowY('matches', 'id')} H${right('matches')}` },
+    ],
+  },
 };
 
 export function ErSchema({ db = 'chaikhana', highlight = [], title }: { db?: DbName; highlight?: string[]; title: string }) {
@@ -55,10 +91,11 @@ export function ErSchema({ db = 'chaikhana', highlight = [], title }: { db?: DbN
   const active = (t: string) => highlight.length === 0 || highlight.includes(t);
   const height = Math.max(...Object.keys(layout).map((t) => layout[t].y + HEAD_H + schema[t].length * ROW_H)) + 20;
   const markerId = `er-arrow-${db}`;
+  const width = Math.max(...Object.values(layout).map((p) => p.x + BOX_W)) + 20;
 
   return (
     <div className="result-scroll rounded-xl border border-cream-dark bg-white/70">
-      <svg viewBox={`0 0 570 ${height}`} role="img" aria-label={title} className="block w-full min-w-[520px] font-mono lg:min-w-0">
+      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={title} className="block w-full font-mono lg:min-w-0" style={{ minWidth: Math.round(width * 0.9) }}>
         <title>{title}</title>
         <defs>
           <marker id={markerId} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
