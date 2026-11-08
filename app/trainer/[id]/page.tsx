@@ -1,37 +1,26 @@
+// Старые адреса заданий: /trainer/<внутренний id>. Ведут на новый адрес /task/<номер в курсе>,
+// чтобы ссылки, которые уже разослали ученикам, продолжали работать.
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { getPublicTask, getPublicTasks } from '@/lib/tasks';
-import { TaskWorkspace } from '@/components/TaskWorkspace';
-import { TIERS } from '@/lib/course';
+import { taskPath } from '@/lib/task-path';
+import { IS_STATIC } from '@/lib/env';
+import { LegacyRedirect } from '@/components/LegacyRedirect';
 
 type Props = { params: Promise<{ id: string }> };
 
-/** Все страницы заданий заранее — нужно для статической сборки (GitHub Pages) */
+/** Для статической сборки — страница-перенаправление на каждый старый адрес */
 export function generateStaticParams() {
   return getPublicTasks().map((t) => ({ id: String(t.id) }));
 }
 
-function parseId(raw: string): number | null {
-  return /^\d{1,4}$/.test(raw) ? Number(raw) : null;
-}
+export const metadata: Metadata = { robots: { index: false } };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const id = parseId((await params).id);
-  const task = id === null ? undefined : getPublicTask(id);
-  return { title: task ? `${task.num}. ${task.title_ru}` : 'Задание' };
-}
-
-export default async function TaskPage({ params }: Props) {
-  const id = parseId((await params).id);
-  const task = id === null ? undefined : getPublicTask(id);
+export default async function LegacyTaskPage({ params }: Props) {
+  const raw = (await params).id;
+  const task = /^\d{1,4}$/.test(raw) ? getPublicTask(Number(raw)) : undefined;
   if (!task) notFound();
-
-  const all = getPublicTasks();
-  const ids = all.map((t) => t.id);
-  const index = ids.indexOf(task.id);
-  // Все задания уровня этого задания — чтобы отпраздновать, когда уровень пройден целиком
-  const tier = TIERS.find((t) => t.topics.includes(task.topic));
-  const tierTaskIds = all.filter((t) => tier?.topics.includes(t.topic)).map((t) => t.id);
-
-  return <TaskWorkspace key={task.id} task={task} prevId={ids[index - 1]} nextId={ids[index + 1]} tierTaskIds={tierTaskIds} tierId={tier?.id} />;
+  // С сервером — настоящий редирект 308; на GitHub Pages сервера нет — перенаправляет браузер
+  if (!IS_STATIC) permanentRedirect(taskPath(task.num));
+  return <LegacyRedirect to={taskPath(task.num)} title={`${task.num}. ${task.title_ru}`} />;
 }

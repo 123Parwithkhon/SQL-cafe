@@ -5,6 +5,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { PublicTask } from '@/lib/tasks';
+import { taskPath } from '@/lib/task-path';
 import type { DictKey } from '@/lib/i18n';
 import { useLang } from './LangProvider';
 import { PishtaqFrame } from './Pishtaq';
@@ -166,7 +167,7 @@ export function InterviewView({ pool }: { pool: PublicTask[] }) {
               <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${a.solved ? 'bg-emerald text-white' : 'bg-danger-soft text-danger'}`}>
                 {a.solved ? <Check size={16} strokeWidth={3} /> : '—'}
               </span>
-              <Link href={`/trainer/${a.taskId}`} className="min-w-0 flex-1 truncate font-semibold hover:underline">{titleOf(a.taskId)}</Link>
+              <Link href={taskPath(pool.find((x) => x.id === a.taskId)?.num ?? 1)} className="min-w-0 flex-1 truncate font-semibold hover:underline">{titleOf(a.taskId)}</Link>
               <span className="shrink-0 font-mono text-xs text-ink-soft">{mmss(a.seconds)}</span>
             </li>
           ))}

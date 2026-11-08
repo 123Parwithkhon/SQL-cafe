@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { taskPath } from '@/lib/task-path';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type FormEvent } from 'react';
 import {
@@ -18,7 +19,7 @@ import { useLang } from './LangProvider';
 import { Avatar } from './Avatar';
 import { PishtaqFrame } from './Pishtaq';
 
-type TaskInfo = { id: number; topic: Topic; level: 'easy' | 'medium' | 'hard'; title_ru: string; title_tj: string };
+type TaskInfo = { id: number; num: number; topic: Topic; level: 'easy' | 'medium' | 'hard'; title_ru: string; title_tj: string };
 
 type Props = {
   tasks: TaskInfo[];
@@ -246,7 +247,7 @@ export function ProfileView({ tasks, user, stats, certificates, failed, signOutA
             <ul className="mt-3 divide-y divide-cream-dark/60 overflow-hidden rounded-xl bg-cream text-ink">
               {stats.recent.map((r) => (
                 <li key={r.taskId}>
-                  <Link href={`/trainer/${r.taskId}`} className="flex items-center gap-3 px-4 py-3 hover:bg-white/50">
+                  <Link href={taskPath(tasks.find((x) => x.id === r.taskId)?.num ?? 1)} className="flex items-center gap-3 px-4 py-3 hover:bg-white/50">
                     <Check size={18} className="shrink-0 text-emerald" aria-hidden />
                     <span className="min-w-0 flex-1 truncate font-semibold">{titleOf(r.taskId)}</span>
                     <span className="shrink-0 text-xs text-ink-soft">{r.solvedAt}</span>

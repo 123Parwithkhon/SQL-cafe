@@ -10,7 +10,7 @@ export default function HomePage() {
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
       <HomeHero />
-      <TaskWorkspace task={demo} nextId={2} variant="compact" />
+      <TaskWorkspace task={demo} nextNum={2} variant="compact" />
     </div>
   );
 }

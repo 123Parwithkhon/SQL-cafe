@@ -2,6 +2,7 @@
 
 // «Повторение на сегодня» — задания, к темам которых пора вернуться
 import Link from 'next/link';
+import { taskPath } from '@/lib/task-path';
 import { useMemo } from 'react';
 import type { DictKey } from '@/lib/i18n';
 import { useProgress } from '@/lib/progress';
@@ -9,7 +10,7 @@ import { useDueReviews, type TaskLite } from '@/lib/review';
 import { useLang } from './LangProvider';
 import { ArrowRight, Repeat } from './icons';
 
-export function ReviewPanel({ tasks }: { tasks: (TaskLite & { title_ru: string; title_tj: string })[] }) {
+export function ReviewPanel({ tasks }: { tasks: (TaskLite & { num: number; title_ru: string; title_tj: string })[] }) {
   const { lang, t } = useLang();
   const { progress, loaded } = useProgress();
   const solved = useMemo(() => (loaded ? progress.solved : []), [loaded, progress.solved]);
@@ -29,7 +30,7 @@ export function ReviewPanel({ tasks }: { tasks: (TaskLite & { title_ru: string; 
           if (!task) return null;
           return (
             <li key={item.topic}>
-              <Link href={`/trainer/${task.id}`} className="flex h-full flex-col rounded-xl bg-cream px-4 py-3 text-ink transition hover:-translate-y-0.5">
+              <Link href={taskPath(task.num)} className="flex h-full flex-col rounded-xl bg-cream px-4 py-3 text-ink transition hover:-translate-y-0.5">
                 <span className="text-xs uppercase tracking-wide text-ink-soft">
                   {t(`topic.${item.topic}` as DictKey)} · {t(item.stage === 0 ? 'review.after3' : 'review.after7')}
                 </span>

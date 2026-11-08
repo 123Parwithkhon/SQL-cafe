@@ -8,6 +8,7 @@ import { IS_STATIC } from '@/lib/env';
 import { DailyGoal, ProverbOfTheDay, RankBadge, SilkRoad } from './Motivation';
 import { OrnamentDivider } from './Ornament';
 import type { PublicTask } from '@/lib/tasks';
+import { taskPath } from '@/lib/task-path';
 import { TIERS } from '@/lib/course';
 import type { DictKey } from '@/lib/i18n';
 import { useProgress } from '@/lib/progress';
@@ -123,7 +124,7 @@ export function TaskMap({ tasks }: { tasks: PublicTask[] }) {
                       return (
                         <li key={task.id}>
                           <Link
-                            href={`/trainer/${task.id}`}
+                            href={taskPath(task.num)}
                             className={`flex min-h-16 items-center gap-3 rounded-xl px-4 py-3 transition hover:-translate-y-0.5 ${
                               solved ? 'bg-emerald-soft text-ink' : 'bg-cream text-ink hover:shadow-lg'
                             }`}

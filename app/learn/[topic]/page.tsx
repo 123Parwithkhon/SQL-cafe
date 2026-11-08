@@ -30,7 +30,7 @@ export default async function LessonPage({ params }: Props) {
   return (
     <LessonView
       lesson={lesson}
-      firstTaskId={topicTasks[0]?.id}
+      firstTaskNum={topicTasks[0]?.num}
       taskCount={topicTasks.length}
       prev={nav(index - 1)}
       next={nav(index + 1)}

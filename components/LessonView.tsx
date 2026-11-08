@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { taskPath } from '@/lib/task-path';
 import { ArrowLeft, ArrowRight, Clock } from '@/components/icons';
 import { ErSchema } from './ErSchema';
 import type { DialectRow, Lesson } from '@/content/lessons';
@@ -13,7 +14,7 @@ type Nav = { topic: string; title_ru: string; title_tj: string };
 
 type Props = {
   lesson: Lesson;
-  firstTaskId?: number;
+  firstTaskNum?: number;
   taskCount: number;
   prev?: Nav;
   next?: Nav;
@@ -61,7 +62,7 @@ function DialectTable({ rows }: { rows: DialectRow[] }) {
   );
 }
 
-export function LessonView({ lesson, firstTaskId, taskCount, prev, next }: Props) {
+export function LessonView({ lesson, firstTaskNum, taskCount, prev, next }: Props) {
   const { lang, t } = useLang();
   const tr = (ru: string, tj: string) => (lang === 'tj' ? tj : ru);
 
@@ -94,11 +95,11 @@ export function LessonView({ lesson, firstTaskId, taskCount, prev, next }: Props
         </section>
       ))}
 
-      {firstTaskId && (
+      {firstTaskNum && (
         <div className="mt-8 flex flex-wrap items-center gap-3 rounded-2xl border border-gold/40 bg-panel p-5">
           <span className="text-fg/80">{t('learn.practice', { n: taskCount })}</span>
           <Link
-            href={`/trainer/${firstTaskId}`}
+            href={taskPath(firstTaskNum)}
             className="ml-auto inline-flex min-h-11 items-center gap-2 rounded-xl bg-terra px-5 font-semibold text-white transition hover:bg-terra-dark"
           >
             {t('learn.toTasks')}

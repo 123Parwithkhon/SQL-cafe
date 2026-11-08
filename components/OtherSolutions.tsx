@@ -3,6 +3,7 @@
 // «Решения других» — открываются после собственного решения. Сначала самые короткие.
 import Link from 'next/link';
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { ChevronDown, LogIn, MapPin, Users } from '@/components/icons';
 import { useLang } from './LangProvider';
 import { useAuthUser } from './AuthProvider';
@@ -11,6 +12,7 @@ import { Avatar } from './Avatar';
 type Solution = { name: string; city: string | null; sql: string; solvedAt: string };
 
 export function OtherSolutions({ taskId }: { taskId: number }) {
+  const pathname = usePathname();
   const { t } = useLang();
   const user = useAuthUser();
   const [open, setOpen] = useState(false);
@@ -21,7 +23,7 @@ export function OtherSolutions({ taskId }: { taskId: number }) {
       <div className="flex flex-wrap items-center gap-3 rounded-xl border border-gold/40 bg-panel px-4 py-3 text-sm text-fg/80">
         <Users size={18} className="shrink-0 text-gold" aria-hidden />
         <span className="min-w-0 flex-1">{t('task.solutionsLogin')}</span>
-        <Link href={`/auth?next=/trainer/${taskId}`} className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-terra px-3 font-semibold text-white hover:bg-terra-dark">
+        <Link href={`/auth?next=${encodeURIComponent(pathname)}`} className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-terra px-3 font-semibold text-white hover:bg-terra-dark">
           <LogIn size={16} aria-hidden />
           {t('auth.signIn')}
         </Link>

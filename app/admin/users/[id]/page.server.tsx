@@ -5,6 +5,7 @@ import { currentAdmin } from '@/auth';
 import { getUserDetail } from '@/lib/admin';
 import { isOwnerEmail } from '@/lib/stats';
 import { getTask } from '@/lib/tasks';
+import { taskPath } from '@/lib/task-path';
 import { Avatar } from '@/components/Avatar';
 import { StatTile } from '@/components/admin/Charts';
 import { UserActions } from '@/components/admin/UserActions';
@@ -85,7 +86,7 @@ export default async function AdminUserPage({ params }: { params: Promise<{ id: 
             {u.solves.map((s) => (
               <li key={s.taskId} className="rounded-xl border border-gold/30 bg-panel p-3">
                 <div className="flex flex-wrap items-baseline gap-x-2 text-sm">
-                  <Link href={`/trainer/${s.taskId}`} className="font-semibold text-fg hover:underline">
+                  <Link href={taskPath(getTask(s.taskId)?.num ?? 1)} className="font-semibold text-fg hover:underline">
                     №{getTask(s.taskId)?.num ?? s.taskId} {getTask(s.taskId)?.title_ru ?? ''}
                   </Link>
                   <span className="text-fg/60">+{s.points}</span>

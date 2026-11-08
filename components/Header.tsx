@@ -20,7 +20,7 @@ export function Header({ theme }: { theme: Theme }) {
   const pathname = usePathname();
 
   const navLink = (href: string, label: string, Icon: IconComponent) => {
-    const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
+    const active = href === '/' ? pathname === '/' : pathname.startsWith(href) || (href === '/trainer' && pathname.startsWith('/task/'));
     return (
       <Link
         href={href}

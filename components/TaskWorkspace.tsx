@@ -6,6 +6,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import type { PublicTask } from '@/lib/tasks';
+import { taskPath } from '@/lib/task-path';
 import type { QueryResult, RowDiff, Verdict } from '@/lib/sql/compare';
 import { diagnose, type Hint } from '@/lib/sql/diagnose';
 import { preloadSql, resetDatabase, runSql, type BrowserRunResult } from '@/lib/sql/browser';
@@ -50,8 +51,8 @@ type CheckResponse =
 
 type Props = {
   task: PublicTask;
-  prevId?: number;
-  nextId?: number;
+  prevNum?: number;
+  nextNum?: number;
   variant?: 'default' | 'compact' | 'interview';
   /** Вызывается после верного решения (режим собеседования) */
   onSolved?: () => void;
@@ -65,7 +66,7 @@ const todayStr = () => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
 
-export function TaskWorkspace({ task, prevId, nextId, variant = 'default', onSolved, tierTaskIds, tierId }: Props) {
+export function TaskWorkspace({ task, prevNum, nextNum, variant = 'default', onSolved, tierTaskIds, tierId }: Props) {
   const { lang, t } = useLang();
   const { progress, markSolved } = useProgress();
   const [failCount, setFailCount] = useState(0);
@@ -405,16 +406,16 @@ export function TaskWorkspace({ task, prevId, nextId, variant = 'default', onSol
         {justSolved && full && (
           <div className="flex flex-wrap items-center gap-3 rounded-xl border border-gold/40 bg-panel px-4 py-3 text-sm">
             <span className="text-gold-soft">{savedToAccount ? t('progress.savedAccount') : t('progress.saved')}</span>
-            {nextId && (
-              <Link href={`/trainer/${nextId}`} className={`${buttonBase} ml-auto gap-2 bg-emerald text-white hover:brightness-110`}>
+            {nextNum && (
+              <Link href={taskPath(nextNum)} className={`${buttonBase} ml-auto gap-2 bg-emerald text-white hover:brightness-110`}>
                 {t('task.next')}
                 <ArrowRight size={18} />
               </Link>
             )}
           </div>
         )}
-        {justSolved && compact && nextId && (
-          <Link href={`/trainer/${nextId}`} className={`${buttonBase} gap-2 self-start bg-emerald text-white hover:brightness-110`}>
+        {justSolved && compact && nextNum && (
+          <Link href={taskPath(nextNum)} className={`${buttonBase} gap-2 self-start bg-emerald text-white hover:brightness-110`}>
             {t('task.next')}
             <ArrowRight size={18} />
           </Link>
@@ -437,16 +438,16 @@ export function TaskWorkspace({ task, prevId, nextId, variant = 'default', onSol
 
         {full && (
           <nav className="flex justify-between text-sm">
-            {prevId ? (
-              <Link href={`/trainer/${prevId}`} className="inline-flex items-center gap-1 text-fg/70 hover:text-gold-soft">
+            {prevNum ? (
+              <Link href={taskPath(prevNum)} className="inline-flex items-center gap-1 text-fg/70 hover:text-gold-soft">
                 <ArrowLeft size={16} />
                 {t('task.prev')}
               </Link>
             ) : (
               <span />
             )}
-            {nextId && !justSolved && (
-              <Link href={`/trainer/${nextId}`} className="inline-flex items-center gap-1 text-fg/70 hover:text-gold-soft">
+            {nextNum && !justSolved && (
+              <Link href={taskPath(nextNum)} className="inline-flex items-center gap-1 text-fg/70 hover:text-gold-soft">
                 {t('task.next')}
                 <ArrowRight size={16} />
               </Link>

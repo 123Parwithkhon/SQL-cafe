@@ -55,6 +55,12 @@ export function getPublicTask(id: number): PublicTask | undefined {
   return task && toPublic(task);
 }
 
+/** Задание по номеру, который видит ученик (адрес /task/<номер>) */
+export function getPublicTaskByNum(num: number): PublicTask | undefined {
+  const task = tasks.find((t) => t.num === num);
+  return task && toPublic(task);
+}
+
 export function getPublicTasks(): PublicTask[] {
   return tasks.map(toPublic);
 }

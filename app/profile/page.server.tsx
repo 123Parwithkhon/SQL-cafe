@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: 'Профиль' };
 
 export default async function ProfilePage() {
   const session = await auth();
-  const tasks = getPublicTasks().map(({ id, topic, level, title_ru, title_tj }) => ({ id, topic, level, title_ru, title_tj }));
+  const tasks = getPublicTasks().map(({ id, num, topic, level, title_ru, title_tj }) => ({ id, num, topic, level, title_ru, title_tj }));
 
   let user: (PublicUser & { provider?: string }) | null = null;
   let stats: ProfileStats | null = null;
